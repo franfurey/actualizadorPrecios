@@ -5,3 +5,7 @@ xlsx
 .xlsx
 
 .ipynb_checkpoints
+/procesados
+/procesadosCanal
+/sinProcesar
+/listos
