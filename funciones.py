@@ -36,7 +36,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df = df.rename(columns={'SKU_numero': 'SKU'})
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = os.path.join(os.path.dirname(filename), "procesadosCanal")
+    processed_dir = os.path.join(os.path.dirname(filename), "../procesadosCanal")
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
