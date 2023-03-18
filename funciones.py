@@ -2,6 +2,11 @@ import os
 import pandas as pd
 import openpyxl
 from fuzzywuzzy import fuzz
+import requests
+import pandas as pd
+from bs4 import BeautifulSoup
+#import credentials
+import re
 
 def clean_canal(filename, new_filename=None,  mpn_value=None):
     # Cargar el archivo de CSV
@@ -61,39 +66,38 @@ def concat(archivo1, archivo2, archivo_resultado):
     #
     df2['Código de barras'] = df2['Código de barras'].astype(str)
 
-    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras','Costo',
-                                      'df2_SKU','df2_Nombre','df2_Código de barras','df2_Precio','similarity'])
+    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras',
+                                      'df2_SKU','df2_Nombre','df2_Código de barras','df2_Costo','similarity', 'Marca'])
 
 
     for i, row1 in df1.iterrows():
         canal_Nombre = row1['Nombre']
-        canal_Precio = row1['Precio']
+        canal_Precio = row1['Costo']
         canal_SKU = row1['SKU']
         canal_Codigo = row1['Código de barras']
         canal_Identificador = row1['Identificador de URL']
-        canal_costo = row1['Costo']
         found = False
 
         for j, row2 in df2.iterrows():
             df2_Nombre = row2['Nombre']
-            df2_Precio = row2['Precio']
+            df2_Costo = row2['Costo']
             df2_SKU = row2['SKU']
             df2_Codigo = row2['Código de barras']
 
             similarity = fuzz.token_set_ratio(canal_SKU, df2_SKU)
 
             if similarity >= 99:
-                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_costo,
-                                                  df2_SKU, df2_Nombre, df2_Codigo, df2_Precio, similarity]
+                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo,
+                                                  df2_SKU, df2_Nombre, df2_Codigo, df2_Costo, similarity, row2.get("Marca", "")]
                 found = True
 
         if not found:
-            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_costo, 
-                                             None, None, None, None, None]
+            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, 
+                                             None, None, None, None, None, None]
 
     for i, row2 in df2.iterrows():
         df2_Nombre = row2['Nombre']
-        df2_Precio = row2['Precio']
+        df2_Costo = row2['Costo']
         df2_SKU = row2['SKU']
         df2_Codigo = row2['Código de barras']
         found = False
@@ -104,10 +108,12 @@ def concat(archivo1, archivo2, archivo_resultado):
                 break
         
         if not found:
-            df_result.loc[len(df_result)] = [None, None, None, None, None,None, 
-                                             df2_SKU, df2_Nombre, df2_Codigo, df2_Precio, None]
-            
-    df_result.to_excel(archivo_resultado, index= False, float_format = '%.15g')
+            df_result.loc[len(df_result)] = [None, None, None, None, None, 
+                                             df2_SKU, df2_Nombre, df2_Codigo, df2_Costo, None, row2.get("Marca", "")]
+
+    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'canal_Precio', 'Marca', 'canal_SKU', 'canal_Código de barras',
+                           'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'df2_Costo', 'similarity']]
+    df_result.to_excel(archivo_resultado, index=False, float_format='%.15g')
     print("Archivo CONCATENADO guardado como",archivo_resultado)
 
 
@@ -195,9 +201,9 @@ def clean_furey(filename, new_filename=None):
         df.columns[0]: 'SKU',
         df.columns[1]: 'Código de barras',
         df.columns[2]: 'Nombre',
-        df.columns[3]: 'Precio'
+        df.columns[3]: 'Costo'
     })
-    df = df[['SKU', 'Código de barras', 'Nombre', 'Precio']]
+    df = df[['SKU', 'Código de barras', 'Nombre', 'Costo']]
 
     # Eliminar filas sin un código asociado
     columna = df.iloc[:, 0]
@@ -219,8 +225,8 @@ def clean_furey(filename, new_filename=None):
     # Concatenar SKU_numero y SKU_letra dentro de SKU_numero
     df['SKU'] =df['num'].astype(str) + df['SKU_letra']
     df = df.drop(columns=['num', 'SKU_letra'])
-    df['Precio'] = df['Precio'].astype(str)
-    df['Precio'] = df['Precio'].str.replace(',', '').str.replace('\..*', '', regex=True)
+    df['Costo'] = df['Costo'].astype(str)
+    df['Costo'] = df['Costo'].str.replace(',', '').str.replace('\..*', '', regex=True)
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
     processed_dir = "./procesados"
@@ -268,9 +274,9 @@ def clean_teddy(filename, new_filename=None):
         df.columns[1]: 'SKU',
         df.columns[2]: 'Código de barras',
         df.columns[3]: 'Nombre',
-        df.columns[4]: 'Precio'
+        df.columns[4]: 'Costo'
     })
-    df = df[['SKU', 'Código de barras', 'Nombre', 'Precio']]
+    df = df[['SKU', 'Código de barras', 'Nombre', 'Costo']]
 
     # Eliminar filas sin un código asociado
     columna = df.iloc[:, 1]
@@ -286,10 +292,10 @@ def clean_teddy(filename, new_filename=None):
     df = df.sort_values(by='SKU')
 
 
-    df['Precio'] = df['Precio'].replace(',', '', regex=True)
+    df['Costo'] = df['Costo'].replace(',', '', regex=True)
 
-    # Limpiar los valores de la columna "Precio"
-    df['Precio'] = df['Precio'].apply(lambda x: int(float(str(x).split('.')[0])))
+    # Limpiar los valores de la columna "Costo"
+    df['Costo'] = df['Costo'].apply(lambda x: int(float(str(x).split('.')[0])))
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
     processed_dir = os.path.join(os.path.dirname(filename), "./procesados/")
@@ -327,3 +333,81 @@ def clean_teddy(filename, new_filename=None):
 
     wb.save(processed_filename)
     print('Imágenes eliminadas del archivo', processed_filename)
+
+def scrape_drimel(urls):
+    session = requests.Session()
+
+    # payload = {'email': credentials.email_drimel, 'password': credentials.password_drimel}
+
+    # response = session.post(login_url, data=payload)
+
+    # if response.status_code == 200:
+    #     print('Inicio de sesión exitoso')
+    # else:
+    #     print('Inicio de sesión fallido')
+
+
+    marcas = ['Algabo', 'Duffy', 'Huggies','Babysec','Caricia','Estrella','Pampers',
+              'Candy','Doncella','Deyse','Johnsons','Kimbies','Upa']
+
+    df = pd.DataFrame(columns=['name', 'price','marca','product_id', 'product_sku','url_id','MPN (Número de pieza del fabricante)'])        
+    
+    
+    # Buscamos los elementos que contienen la información de los productos
+    # https://drimel.com.ar/?product_cat=panales
+    # https://drimel.com.ar/?product_cat=panales&paged=2
+    for extract_url in urls: 
+
+
+        page = 1
+        while True:
+            url = extract_url + '&paged={}'.format(page)
+
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            products = soup.find_all('div', class_='box-text box-text-products')
+            #print('Products',products)
+            if not products:
+                break
+
+            # Iteramos sobre los elementos encontrados y extraemos la información deseada
+            for product in products:
+                
+                name = product.find('a', class_='woocommerce-LoopProduct-link').text.strip()
+            
+                price = product.find('span', class_='woocommerce-Price-amount').text.strip()[1:] # Quitamos el signo $
+                price = price.replace('"', '').replace('.', '').split(',')[0] # Quitamos las comillas, la coma y lo que hay después del punto
+                
+                
+                # Buscamos si el nombre del producto contiene alguna de las marcas
+                marca = ''
+                for m in marcas:
+                    if m.lower() in name.lower():
+                        marca = m
+                        break
+                # Obtenemos el código de barras y el código común del producto
+                add_to_cart_button = product.find('a', class_='add_to_cart_button')
+                product_id = add_to_cart_button.get('data-product_id', '')
+                product_sku = add_to_cart_button.get('data-product_sku', '')
+
+                url_id = re.sub('[^a-zA-Z0-9]+', '-', name).strip('-')
+                url_id = url_id.replace(' ', '-')
+
+                # Excluimos las filas que tengan como marca 'Algabo' o 'Upa'
+                df = df[(df['marca'] != 'Algabo') & (df['marca'] != 'Upa')]
+
+                MPN = 'Drimel'
+                df.loc[len(df)] = [name, price, marca, product_id, product_sku, url_id, MPN]
+            page += 1
+                # Puedes hacer lo que necesites con la información obtenida, como imprimir o guardar en un archivo
+    df = df.rename(columns={'name': 'Nombre', 'price': 'Costo',
+                             'product_id': 'SKU', 'product_sku': 'Código de barras',
+                               'url_id':'Identificador de URL', 'marca':'Marca'})
+
+    df['SKU'] = df['SKU'].astype(int)
+    df = df.sort_values('SKU', ascending=True)
+
+    df.to_excel('./procesados/drimel.xlsx', index=False)
+    print('Archivo guardado con exito')
+    return
