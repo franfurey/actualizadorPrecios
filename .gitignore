@@ -3,10 +3,10 @@ canal.csv
 csv
 xlsx
 .xlsx
-
 .ipynb_checkpoints
 /procesados
 /procesadosCanal
 /sinProcesar
 /listos
 __pycache__
+venv

@@ -8,7 +8,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df = pd.read_csv(filename)
 
     df = df[['Identificador de URL', 'Nombre', 'Precio',
-              'SKU','Código de barras','MPN (Número de pieza del fabricante)']]
+              'SKU','Código de barras','MPN (Número de pieza del fabricante)','Costo']]
 
     # Filtrar por valor específico en la columna MPN
     if mpn_value is not None:
@@ -17,11 +17,14 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
   # Limpiar la columna Precio
     df['Precio'] = df['Precio'].str.replace('\..*', '').str.replace(',', '')
     df['Precio'] = pd.to_numeric(df['Precio'])
+
     # Separar la columna SKU en dos columnas
     df[['SKU_palabra', 'SKU_num']] = df['SKU'].str.split('-', expand=True)
+
     # Separar la columna SKU en dos columnas
     df["SKU_num"] = df["SKU_num"].astype(str)
     df[["num", "SKU_letra"]] = df["SKU_num"].str.extract(r"(\d+)(\D*)")
+
     # Convertir la columna SKU_numero a números
     df["num"] = pd.to_numeric(df["num"], errors="coerce")
 
@@ -36,7 +39,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df = df.rename(columns={'SKU_numero': 'SKU'})
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = os.path.join(os.path.dirname(filename), "../procesadosCanal")
+    processed_dir = "./procesadosCanal"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -58,7 +61,7 @@ def concat(archivo1, archivo2, archivo_resultado):
     #
     df2['Código de barras'] = df2['Código de barras'].astype(str)
 
-    df_result = pd.DataFrame(columns=['canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras','canal_Identificador de URL',
+    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras','Costo',
                                       'df2_SKU','df2_Nombre','df2_Código de barras','df2_Precio','similarity'])
 
 
@@ -68,6 +71,7 @@ def concat(archivo1, archivo2, archivo_resultado):
         canal_SKU = row1['SKU']
         canal_Codigo = row1['Código de barras']
         canal_Identificador = row1['Identificador de URL']
+        canal_costo = row1['Costo']
         found = False
 
         for j, row2 in df2.iterrows():
@@ -79,12 +83,12 @@ def concat(archivo1, archivo2, archivo_resultado):
             similarity = fuzz.token_set_ratio(canal_SKU, df2_SKU)
 
             if similarity >= 99:
-                df_result.loc[len(df_result)] = [ canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_Identificador,
+                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_costo,
                                                   df2_SKU, df2_Nombre, df2_Codigo, df2_Precio, similarity]
                 found = True
 
         if not found:
-            df_result.loc[len(df_result)] = [canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_Identificador,
+            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, canal_costo, 
                                              None, None, None, None, None]
 
     for i, row2 in df2.iterrows():
@@ -100,7 +104,7 @@ def concat(archivo1, archivo2, archivo_resultado):
                 break
         
         if not found:
-            df_result.loc[len(df_result)] = [None, None, None, None, None,
+            df_result.loc[len(df_result)] = [None, None, None, None, None,None, 
                                              df2_SKU, df2_Nombre, df2_Codigo, df2_Precio, None]
             
     df_result.to_excel(archivo_resultado, index= False, float_format = '%.15g')
@@ -116,9 +120,9 @@ def clean_algabo(filename, new_filename=None):
         df.columns[1]: 'SKU',
         df.columns[2]: 'Código de barras',
         df.columns[5]: 'Nombre',
-        df.columns[26]: 'Precio'
+        df.columns[26]: 'Costo'
     })
-    df = df[['SKU', 'Código de barras', 'Nombre', 'Precio']]
+    df = df[['SKU', 'Código de barras', 'Nombre', 'Costo']]
 
     # Eliminar filas sin un código asociado
     columna = df.iloc[:, 1]
@@ -140,6 +144,12 @@ def clean_algabo(filename, new_filename=None):
     # Concatenar SKU_numero y SKU_letra dentro de SKU_numero
     df['SKU'] =df['num'].astype(str) + df['SKU_letra']
     df = df.drop(columns=['num', 'SKU_letra'])
+
+    # Aplicar un 15% de descuento a la columna Costo
+    df['Costo'] = df['Costo'] * 0.85
+
+    # Aplicar un 21% de aumento a la columna Costo
+    df['Costo'] = df['Costo'] * 1.21
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
     processed_dir = os.path.join(os.path.dirname(filename), "./procesados/")
@@ -213,7 +223,7 @@ def clean_furey(filename, new_filename=None):
     df['Precio'] = df['Precio'].str.replace(',', '').str.replace('\..*', '', regex=True)
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = os.path.join(os.path.dirname(filename), "./procesados/")
+    processed_dir = "./procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
