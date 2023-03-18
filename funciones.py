@@ -20,7 +20,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
         df = df[df['MPN (Número de pieza del fabricante)'] == mpn_value]
 
   # Limpiar la columna Precio
-    df['Precio'] = df['Precio'].str.replace('\..*', '').str.replace(',', '')
+    df['Precio'] = df['Precio'].str.replace('\..*', '', regex=True).str.replace(',', '')
     df['Precio'] = pd.to_numeric(df['Precio'])
 
     # Separar la columna SKU en dos columnas
@@ -67,12 +67,12 @@ def concat(archivo1, archivo2, archivo_resultado):
     df2['Código de barras'] = df2['Código de barras'].astype(str)
 
     df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras',
-                                      'df2_SKU','df2_Nombre','df2_Código de barras','df2_Costo','similarity', 'Marca'])
+                                      'df2_SKU','df2_Nombre','df2_Código de barras','Costo','similarity', 'Marca'])
 
 
     for i, row1 in df1.iterrows():
         canal_Nombre = row1['Nombre']
-        canal_Precio = row1['Costo']
+        canal_Precio = row1['Precio']
         canal_SKU = row1['SKU']
         canal_Codigo = row1['Código de barras']
         canal_Identificador = row1['Identificador de URL']
@@ -80,7 +80,7 @@ def concat(archivo1, archivo2, archivo_resultado):
 
         for j, row2 in df2.iterrows():
             df2_Nombre = row2['Nombre']
-            df2_Costo = row2['Costo']
+            Costo = row2['Costo']
             df2_SKU = row2['SKU']
             df2_Codigo = row2['Código de barras']
 
@@ -88,7 +88,7 @@ def concat(archivo1, archivo2, archivo_resultado):
 
             if similarity >= 99:
                 df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo,
-                                                  df2_SKU, df2_Nombre, df2_Codigo, df2_Costo, similarity, row2.get("Marca", "")]
+                                                  df2_SKU, df2_Nombre, df2_Codigo, Costo, similarity, row2.get("Marca", "")]
                 found = True
 
         if not found:
@@ -97,7 +97,7 @@ def concat(archivo1, archivo2, archivo_resultado):
 
     for i, row2 in df2.iterrows():
         df2_Nombre = row2['Nombre']
-        df2_Costo = row2['Costo']
+        Costo = row2['Costo']
         df2_SKU = row2['SKU']
         df2_Codigo = row2['Código de barras']
         found = False
@@ -109,10 +109,10 @@ def concat(archivo1, archivo2, archivo_resultado):
         
         if not found:
             df_result.loc[len(df_result)] = [None, None, None, None, None, 
-                                             df2_SKU, df2_Nombre, df2_Codigo, df2_Costo, None, row2.get("Marca", "")]
+                                             df2_SKU, df2_Nombre, df2_Codigo, Costo, None, row2.get("Marca", "")]
 
     df_result = df_result[['Identificador de URL', 'canal_Nombre', 'canal_Precio', 'Marca', 'canal_SKU', 'canal_Código de barras',
-                           'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'df2_Costo', 'similarity']]
+                           'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'Costo', 'similarity']]
     df_result.to_excel(archivo_resultado, index=False, float_format='%.15g')
     print("Archivo CONCATENADO guardado como",archivo_resultado)
 
@@ -337,16 +337,6 @@ def clean_teddy(filename, new_filename=None):
 def scrape_drimel(urls):
     session = requests.Session()
 
-    # payload = {'email': credentials.email_drimel, 'password': credentials.password_drimel}
-
-    # response = session.post(login_url, data=payload)
-
-    # if response.status_code == 200:
-    #     print('Inicio de sesión exitoso')
-    # else:
-    #     print('Inicio de sesión fallido')
-
-
     marcas = ['Algabo', 'Duffy', 'Huggies','Babysec','Caricia','Estrella','Pampers',
               'Candy','Doncella','Deyse','Johnsons','Kimbies','Upa']
 
@@ -357,8 +347,6 @@ def scrape_drimel(urls):
     # https://drimel.com.ar/?product_cat=panales
     # https://drimel.com.ar/?product_cat=panales&paged=2
     for extract_url in urls: 
-
-
         page = 1
         while True:
             url = extract_url + '&paged={}'.format(page)
@@ -404,6 +392,12 @@ def scrape_drimel(urls):
     df = df.rename(columns={'name': 'Nombre', 'price': 'Costo',
                              'product_id': 'SKU', 'product_sku': 'Código de barras',
                                'url_id':'Identificador de URL', 'marca':'Marca'})
+    
+
+    df['Costo'] = pd.to_numeric(df['Costo'])
+    df['Costo'] = df['Costo'].apply(lambda x: round(x*0.9))
+
+
 
     df['SKU'] = df['SKU'].astype(int)
     df = df.sort_values('SKU', ascending=True)
