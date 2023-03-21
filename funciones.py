@@ -66,13 +66,13 @@ def concat(archivo1, archivo2, archivo_resultado):
     #
     df2['Código de barras'] = df2['Código de barras'].astype(str)
 
-    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','canal_Precio','canal_SKU','canal_Código de barras',
+    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','Precio','canal_SKU','canal_Código de barras',
                                       'df2_SKU','df2_Nombre','df2_Código de barras','Costo','similarity', 'Marca'])
 
 
     for i, row1 in df1.iterrows():
         canal_Nombre = row1['Nombre']
-        canal_Precio = row1['Precio']
+        Precio = row1['Precio']
         canal_SKU = row1['SKU']
         canal_Codigo = row1['Código de barras']
         canal_Identificador = row1['Identificador de URL']
@@ -87,12 +87,12 @@ def concat(archivo1, archivo2, archivo_resultado):
             similarity = fuzz.token_set_ratio(canal_SKU, df2_SKU)
 
             if similarity >= 99:
-                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo,
+                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo,
                                                   df2_SKU, df2_Nombre, df2_Codigo, Costo, similarity, row2.get("Marca", "")]
                 found = True
 
         if not found:
-            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, canal_Precio, canal_SKU, canal_Codigo, 
+            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo, 
                                              None, None, None, None, None, None]
 
     for i, row2 in df2.iterrows():
@@ -111,9 +111,9 @@ def concat(archivo1, archivo2, archivo_resultado):
             df_result.loc[len(df_result)] = [None, None, None, None, None, 
                                              df2_SKU, df2_Nombre, df2_Codigo, Costo, None, row2.get("Marca", "")]
 
-    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'canal_Precio', 'Marca', 'canal_SKU', 'canal_Código de barras',
+    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'Precio', 'Marca', 'canal_SKU', 'canal_Código de barras',
                            'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'Costo', 'similarity']]
-    df_result.to_excel(archivo_resultado, index=False, float_format='%.15g')
+    df_result.to_excel(archivo_resultado, index=False)
     print("Archivo CONCATENADO guardado como",archivo_resultado)
 
 
@@ -158,7 +158,7 @@ def clean_algabo(filename, new_filename=None):
     df['Costo'] = df['Costo'] * 1.21
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = os.path.join(os.path.dirname(filename), "./procesados/")
+    processed_dir = "./procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -227,6 +227,11 @@ def clean_furey(filename, new_filename=None):
     df = df.drop(columns=['num', 'SKU_letra'])
     df['Costo'] = df['Costo'].astype(str)
     df['Costo'] = df['Costo'].str.replace(',', '').str.replace('\..*', '', regex=True)
+
+    # DESCUENTOS 
+    df['Costo'] = pd.to_numeric(df['Costo'])
+    df['Costo'] = df['Costo'].apply(lambda x: round(x*0.83))
+
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
     processed_dir = "./procesados"
@@ -405,3 +410,62 @@ def scrape_drimel(urls):
     df.to_excel('./procesados/drimel.xlsx', index=False)
     print('Archivo guardado con exito')
     return
+
+
+def clean_upalala(filename, new_filename=None):
+    # Cargar el archivo de Excel
+    df = pd.read_excel(filename)
+    df = df.drop(index=range(0))
+
+    df = df.rename(columns={
+        df.columns[2]: 'SKU',
+        df.columns[0]: 'Código de barras',
+        df.columns[3]: 'Nombre',
+        df.columns[4]: 'Costo'
+    })
+    df = df[['SKU', 'Código de barras', 'Nombre', 'Costo']]
+
+    # Eliminar filas sin un código asociado
+    columna = df.iloc[:, 1]
+    df = df.dropna(subset=[df.columns[1]])
+    df['Código de barras'] = df['Código de barras'].astype(int).astype(str)
+    df['Código de barras'] = df['Código de barras'].str.replace('.', '').str.replace('+', '').str.replace('E', '').str.replace('-', '')
+    df['Código de barras'] = df['Código de barras'].str.zfill(13)
+
+    df['Costo'] = df['Costo'].astype(str).str.split('.', n=1, expand=True)[0]
+
+
+
+    # Guardar el archivo de Excel modificado en la carpeta "procesados"
+    processed_dir = "./procesados"
+    os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
+    
+    if new_filename is None:
+        new_filename = os.path.basename(filename)
+    else:
+        _, file_extension = os.path.splitext(filename)
+        new_filename = new_filename + file_extension
+        
+    processed_filename = os.path.join(processed_dir, new_filename)
+    df.to_excel(processed_filename, index=False)
+
+    print('Archivo limpio guardado como', processed_filename)
+
+    # Eliminar las formas que no son imágenes
+    wb = openpyxl.load_workbook(processed_filename)
+    ws = wb.active
+
+    # Iterar sobre todas las formas en la hoja de cálculo
+    try:
+        # Iterar sobre todas las formas en la hoja de cálculo
+        for shape in ws._shapes:
+            # Eliminar la forma si no es un gráfico
+            if not isinstance(shape, openpyxl.drawing.image.Image):
+                ws.remove_shape(shape)
+    except AttributeError:
+        # Si no se puede acceder a _shapes, usar _images en su lugar
+        for image in ws._images:
+            # Eliminar la imagen
+            ws.remove_image(image)
+
+    wb.save(processed_filename)
