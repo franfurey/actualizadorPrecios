@@ -62,14 +62,16 @@ def concat(archivo1, archivo2, archivo_resultado):
     # Cargar los dos archivos de Excel
     df1 = pd.read_excel(archivo1)
     df2 = pd.read_excel(archivo2)
+
+    # Convertir la columna 'Código de barras' a tipo string en ambos DataFrames
     df1['Código de barras'] = df1['Código de barras'].astype(str)
-    #
     df2['Código de barras'] = df2['Código de barras'].astype(str)
 
-    df_result = pd.DataFrame(columns=['Identificador de URL','canal_Nombre','Precio','canal_SKU','canal_Código de barras',
-                                      'df2_SKU','df2_Nombre','df2_Código de barras','Costo','similarity', 'Marca'])
+    # Crear un DataFrame vacío para almacenar los resultados
+    df_result = pd.DataFrame(columns=['Identificador de URL', 'canal_Nombre', 'Precio', 'canal_SKU', 'canal_Código de barras',
+                                      'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'Costo', 'similarity', 'Marca'])
 
-
+    # Iterar sobre las filas del primer DataFrame (df1)
     for i, row1 in df1.iterrows():
         canal_Nombre = row1['Nombre']
         Precio = row1['Precio']
@@ -78,23 +80,28 @@ def concat(archivo1, archivo2, archivo_resultado):
         canal_Identificador = row1['Identificador de URL']
         found = False
 
+        # Iterar sobre las filas del segundo DataFrame (df2)
         for j, row2 in df2.iterrows():
             df2_Nombre = row2['Nombre']
             Costo = row2['Costo']
             df2_SKU = row2['SKU']
             df2_Codigo = row2['Código de barras']
 
+            # Calcular la similitud entre los SKUs de df1 y df2 usando FuzzyWuzzy
             similarity = fuzz.token_set_ratio(canal_SKU, df2_SKU)
 
+            # Si la similitud es mayor o igual al 99%, agregar la fila al DataFrame de resultados
             if similarity >= 99:
                 df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo,
                                                   df2_SKU, df2_Nombre, df2_Codigo, Costo, similarity, row2.get("Marca", "")]
                 found = True
 
+        # Si no se encontró una coincidencia, agregar una fila con los datos de df1 y campos vacíos para df2
         if not found:
-            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo, 
+            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo,
                                              None, None, None, None, None, None]
 
+    # Iterar sobre las filas del segundo DataFrame (df2) para agregar filas no coincidentes al DataFrame de resultados
     for i, row2 in df2.iterrows():
         df2_Nombre = row2['Nombre']
         Costo = row2['Costo']
@@ -102,11 +109,13 @@ def concat(archivo1, archivo2, archivo_resultado):
         df2_Codigo = row2['Código de barras']
         found = False
 
+        # Verificar si el SKU de df2 ya está en el DataFrame de resultados
         for j, row_result in df_result.iterrows():
             if row_result['df2_SKU'] == df2_SKU:
                 found = True
                 break
-        
+
+        # Si no se encontró una coincidencia, agregar una fila con los datos de df2 y campos vacíos para df1
         if not found:
             df_result.loc[len(df_result)] = [None, None, None, None, None, 
                                              df2_SKU, df2_Nombre, df2_Codigo, Costo, None, row2.get("Marca", "")]
