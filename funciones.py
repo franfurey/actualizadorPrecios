@@ -23,25 +23,20 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df['Precio'] = df['Precio'].str.replace('\..*', '', regex=True).str.replace(',', '')
     df['Precio'] = pd.to_numeric(df['Precio'])
 
-    # Separar la columna SKU en dos columnas
-    df[['SKU_palabra', 'SKU_num']] = df['SKU'].str.split('-', expand=True)
 
-    # Separar la columna SKU en dos columnas
-    df["SKU_num"] = df["SKU_num"].astype(str)
-    df[["num", "SKU_letra"]] = df["SKU_num"].str.extract(r"(\d+)(\D*)")
+    # Extraer la palabra y el número de la columna SKU
+    df[['SKU_palabra', 'SKU_num']] = df['SKU'].str.extract(r"(\D+)(\d+)")
 
-    # Convertir la columna SKU_numero a números
-    df["num"] = pd.to_numeric(df["num"], errors="coerce")
+    # Convertir la columna SKU_num a números
+    df["SKU_num"] = pd.to_numeric(df["SKU_num"], errors="coerce")
 
-    # Ordenar por SKU_numero de forma ascendente
-    df = df.sort_values(by='num')
-
-    # Concatenar SKU_numero y SKU_letra dentro de SKU_numero
-    df['SKU_numero'] =df['num'].astype(str) + df['SKU_letra']
+    # Ordenar por SKU_num de forma ascendente
+    df = df.sort_values(by='SKU_num')
+    df['SKU_modificado'] = df['SKU_palabra'] + df['SKU_num'].astype(str)
 
     # Eliminar la columna SKU_letra
-    df.drop(['SKU_letra','SKU','SKU_letra','SKU_num','num','SKU_palabra'], axis=1, inplace=True)
-    df = df.rename(columns={'SKU_numero': 'SKU'})
+    df.drop(['SKU','SKU_num','SKU_palabra'], axis=1, inplace=True)
+    df = df.rename(columns={'SKU_modificado': 'SKU'})
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
     processed_dir = "./procesadosCanal"
