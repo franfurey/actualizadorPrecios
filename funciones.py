@@ -10,7 +10,8 @@ import re
 
 def clean_canal(filename, new_filename=None,  mpn_value=None):
     # Cargar el archivo de CSV
-    df = pd.read_csv(filename)
+    df = pd.read_csv(filename, encoding='ISO-8859-1', sep=';')
+
 
     df = df[['Identificador de URL', 'Nombre', 'Precio',
               'SKU','Código de barras','MPN (Número de pieza del fabricante)','Costo']]
@@ -51,7 +52,6 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df.to_excel(processed_filename, index=False)
     
     print('Archivo limpio guardado como', processed_filename)
-
 
 def concat(archivo1, archivo2, archivo_resultado):
     # Cargar los dos archivos de Excel
