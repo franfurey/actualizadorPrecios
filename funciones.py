@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup
 #import credentials
 import re
 
+############################################################################# CANAL ########################################################################################
+############################################################################# CANAL ########################################################################################
+
 def clean_canal(filename, new_filename=None,  mpn_value=None):
     # Cargar el archivo de CSV
     df = pd.read_csv(filename, encoding='ISO-8859-1', sep=';')
@@ -52,6 +55,9 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df.to_excel(processed_filename, index=False)
     
     print('Archivo limpio guardado como', processed_filename)
+
+############################################################################# CONCAT ########################################################################################
+############################################################################# CONCAT ########################################################################################
 
 def concat(archivo1, archivo2, archivo_resultado):
     # Cargar los dos archivos de Excel
@@ -167,6 +173,9 @@ def concat(archivo1, archivo2, archivo_resultado):
     print("Archivo CONCATENADO guardado como",archivo_resultado)
 
 
+############################################################################# ALGABO ########################################################################################
+############################################################################# ALGABO ########################################################################################
+
 def clean_algabo(filename, new_filename=None):
     # Cargar el archivo de Excel
     df = pd.read_excel(filename)
@@ -241,6 +250,8 @@ def clean_algabo(filename, new_filename=None):
 
     wb.save(processed_filename)
 
+############################################################################# FUREY ########################################################################################
+############################################################################# FUREY ########################################################################################
 
 def clean_furey(filename, new_filename=None):
     # Cargar el archivo de Excel
@@ -317,6 +328,7 @@ def clean_furey(filename, new_filename=None):
 
     wb.save(processed_filename)
 
+############################################################################# TEDDY ########################################################################################
 
 def clean_teddy(filename, new_filename=None):
     # Cargar el archivo de Excel
@@ -388,6 +400,9 @@ def clean_teddy(filename, new_filename=None):
 
     wb.save(processed_filename)
     print('Imágenes eliminadas del archivo', processed_filename)
+
+    ############################################################################# DRIMEL ########################################################################################
+    ############################################################################# DRIMEL ########################################################################################
 
 def scrape_drimel(urls):
     session = requests.Session()
@@ -461,6 +476,8 @@ def scrape_drimel(urls):
     print('Archivo guardado con exito')
     return
 
+############################################################################# UPALALA ########################################################################################
+############################################################################# UPALALA ########################################################################################
 
 def clean_upalala(filename, new_filename=None):
     # Cargar el archivo de Excel
