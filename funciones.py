@@ -137,6 +137,15 @@ def concat(archivo1, archivo2, archivo_resultado):
 
     df_result['Porcentaje de aumento'] = ((df_result['df2_Costo'] - df_result['canal_Costo']) / df_result['canal_Costo']) * 100
 
+    # Ordenar el DataFrame 'df_result' de forma decreciente según la columna 'Porcentaje de aumento'
+    df_result = df_result.sort_values(by='Porcentaje de aumento', ascending=False)
+
+    # Redondear los números de la columna 'Porcentaje de Aumento' a enteros
+    df_result['Porcentaje de aumento'] = df_result['Porcentaje de aumento'].round()
+
+    # Guardar el DataFrame en el archivo de Excel
+    df_result.to_excel(archivo_resultado, index=False)
+
 
     total_rows = len(df_result)
     exact_match_count = len(df_result[df_result['similarity'] == 100])
@@ -151,6 +160,7 @@ def concat(archivo1, archivo2, archivo_resultado):
     average_increase = increased_products['Porcentaje de aumento'].mean()
 
     print(f"En general, los productos aumentaron en un {average_increase:.2f}%.")
+    print()
 
     excessive_threshold = 10
     excessive_increases = df_result[df_result['Porcentaje de aumento'] > excessive_threshold]
@@ -162,7 +172,10 @@ def concat(archivo1, archivo2, archivo_resultado):
     else:
         print("No se encontraron aumentos excesivos en los productos.")
     
+    # Calcular la cantidad de productos que sufrieron un aumento
+    num_products_with_increase = len(increased_products)
 
+    print(f"De los {total_rows} productos, {num_products_with_increase} sufrieron un aumento.")
     print()
     print(f"Total de filas en df_result: {total_rows}")
     print(f"Filas con similaridad del 100%: {exact_match_count}")
@@ -329,6 +342,7 @@ def clean_furey(filename, new_filename=None):
     wb.save(processed_filename)
 
 ############################################################################# TEDDY ########################################################################################
+############################################################################# TEDDY ########################################################################################
 
 def clean_teddy(filename, new_filename=None):
     # Cargar el archivo de Excel
@@ -362,10 +376,10 @@ def clean_teddy(filename, new_filename=None):
     df['Costo'] = df['Costo'].replace(',', '', regex=True)
 
     # Limpiar los valores de la columna "Costo"
-    df['Costo'] = df['Costo'].apply(lambda x: int(float(str(x).split('.')[0])))
+    df['Costo'] = df['Costo'].fillna(0).apply(lambda x: int(float(str(x).split('.')[0])))
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = os.path.join(os.path.dirname(filename), "./procesados/")
+    processed_dir = "./procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
