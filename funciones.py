@@ -9,35 +9,6 @@ from bs4 import BeautifulSoup
 #import credentials
 import re
 
-
-def save_dataframe_to_excel_with_adjusted_columns(dataframe, file_path):
-    # Crear un nuevo libro de trabajo de openpyxl
-    wb = openpyxl.Workbook()
-    ws = wb.active
-
-    # Convertir el DataFrame en filas de openpyxl y agregarlas a la hoja de trabajo
-    for r in dataframe_to_rows(dataframe, index=False, header=True):
-        ws.append(r)
-
-    # Centrar el texto y ajustar el ancho de las columnas según el contenido
-    for col in ws.columns:
-        max_length = 0
-        column = col[0].column_letter  # Obtener la letra de la columna
-        for cell in col:
-            # Centrar el texto de todas las celdas, incluidos los encabezados
-            cell.alignment = openpyxl.styles.Alignment(horizontal='center')
-            max_length = max(max_length, len(str(cell.value)))
-
-        # Cambiar el formato de la celda del encabezado
-        col[0].font = openpyxl.styles.Font(bold=True)
-
-        # Ajustar el ancho de la columna
-        adjusted_width = max_length + 1
-        ws.column_dimensions[column].width = adjusted_width
-
-    # Guardar el libro de trabajo en el archivo de Excel
-    wb.save(file_path)
-
 ############################################################################# CANAL ########################################################################################
 ############################################################################# CANAL ########################################################################################
 
@@ -47,7 +18,8 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
 
 
     df = df[['Identificador de URL', 'Nombre', 'Precio',
-              'SKU','Código de barras','MPN (Número de pieza del fabricante)','Costo']]
+              'SKU','Código de barras','MPN (Número de pieza del fabricante)',
+              'Costo','Categorías', 'Tags', 'Título para SEO', 'Descripción para SEO']]
 
     # Filtrar por valor específico en la columna MPN
     if mpn_value is not None:
@@ -73,7 +45,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df = df.rename(columns={'SKU_modificado': 'SKU'})
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesadosCanal"
+    processed_dir = "./procesados/procesadosCanal"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -85,145 +57,6 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df.to_excel(processed_filename, index=False)
     
     print('Archivo limpio guardado como', processed_filename)
-
-############################################################################# CONCAT ########################################################################################
-############################################################################# CONCAT ########################################################################################
-
-def concat(archivo1, archivo2, archivo_resultado):
-    # Cargar los dos archivos de Excel
-    df1 = pd.read_excel(archivo1)
-    df2 = pd.read_excel(archivo2)
-
-    # Convertir la columna 'Código de barras' a tipo string en ambos DataFrames
-    df1['Código de barras'] = df1['Código de barras'].astype(str).str.rstrip('.0')
-    df2['Código de barras'] = df2['Código de barras'].astype(str).str.rstrip('.0')
-
-
-    # Convertir la columna 'SKU' a tipo string en ambos DataFrames y eliminar '.0' al final si lo hay
-    df1['SKU'] = df1['SKU'].astype(str).str.rstrip('.0')
-    df2['SKU'] = df2['SKU'].astype(str).str.rstrip('.0')
-
-    # Crear un DataFrame vacío para almacenar los resultados
-    df_result = pd.DataFrame(columns=['Identificador de URL', 'canal_Nombre', 'Precio', 'canal_SKU', 'canal_Código de barras','canal_Costo',
-                                      'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'df2_Costo', 'similarity', 'Marca'])
-
-    # Iterar sobre las filas del primer DataFrame (df1)
-    for i, row1 in df1.iterrows():
-        canal_Nombre = row1['Nombre']
-        Precio = row1['Precio']
-        canal_SKU = row1['SKU']
-        canal_Codigo = row1['Código de barras']
-        canal_Identificador = row1['Identificador de URL']
-        canal_Costo = row1['Costo']
-        found = False
-
-        # Iterar sobre las filas del segundo DataFrame (df2)
-        for j, row2 in df2.iterrows():
-            df2_Nombre = row2['Nombre']
-            Costo = row2['Costo']
-            df2_SKU = row2['SKU']
-            df2_Codigo = row2['Código de barras']
-
-            # Calcular la similitud entre los SKUs de df1 y df2 usando FuzzyWuzzy
-            similarity = fuzz.token_set_ratio(canal_Codigo, df2_Codigo)
-
-            # Si la similitud es mayor o igual al 99%, agregar la fila al DataFrame de resultados
-            if similarity >= 99:
-                df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo, canal_Costo,
-                                                  df2_SKU, df2_Nombre, df2_Codigo, Costo, similarity, row2.get("Marca", "")]
-                found = True
-
-        # Si no se encontró una coincidencia, agregar una fila con los datos de df1 y campos vacíos para df2
-        if not found:
-            df_result.loc[len(df_result)] = [canal_Identificador, canal_Nombre, Precio, canal_SKU, canal_Codigo, canal_Costo,
-                                             None, None, None, None, None, None]
-
-    # Iterar sobre las filas del segundo DataFrame (df2) para agregar filas no coincidentes al DataFrame de resultados
-    for i, row2 in df2.iterrows():
-        df2_Nombre = row2['Nombre']
-        Costo = row2['Costo']
-        df2_SKU = row2['SKU']
-        df2_Codigo = row2['Código de barras']
-        found = False
-
-        # Verificar si el SKU de df2 ya está en el DataFrame de resultados
-        for j, row_result in df_result.iterrows():
-            if row_result['df2_SKU'] == df2_SKU:
-                found = True
-                break
-
-        # Si no se encontró una coincidencia, agregar una fila con los datos de df2 y campos vacíos para df1
-        if not found:
-            df_result.loc[len(df_result)] = [None, None, None, None, None, None, 
-                                             df2_SKU, df2_Nombre, df2_Codigo, Costo, None, row2.get("Marca", "")]
-
-    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'Precio', 'Marca', 'canal_SKU', 'canal_Código de barras', 'canal_Costo',
-                           'df2_SKU', 'df2_Nombre', 'df2_Código de barras', 'df2_Costo', 'similarity']]
-    
-
-    # Reemplazar las comas por un espacio vacío en las columnas 'canal_Costo' y 'df2_Costo'
-    df_result['canal_Costo'] = df_result['canal_Costo'].astype(str).str.replace(',', '')
-    df_result['df2_Costo'] = df_result['df2_Costo'].astype(str).str.replace(',', '')
-    # Redondear los valores en la columna 'df2_Costo' y convertirlos a enteros y luego a string
-    
-
-
-    df_result['canal_Costo'] = pd.to_numeric(df_result['canal_Costo'], errors='coerce')
-    df_result['df2_Costo'] = pd.to_numeric(df_result['df2_Costo'], errors='coerce')
-    df_result['df2_Costo'] = df_result['df2_Costo'].round()
-
-
-    df_result['Porcentaje de aumento'] = ((df_result['df2_Costo'] - df_result['canal_Costo']) / df_result['canal_Costo']) * 100
-
-    # Ordenar el DataFrame 'df_result' de forma decreciente según la columna 'Porcentaje de aumento'
-    df_result = df_result.sort_values(by='Porcentaje de aumento', ascending=False)
-
-    # Redondear los números de la columna 'Porcentaje de Aumento' a enteros
-    df_result['Porcentaje de aumento'] = df_result['Porcentaje de aumento'].round()
-
-    # Guardar el DataFrame en el archivo de Excel
-    save_dataframe_to_excel_with_adjusted_columns(df_result, archivo_resultado)
-
-    
-
-
-    total_rows = len(df_result)
-    exact_match_count = len(df_result[df_result['similarity'] == 100])
-    missing_df1_rows = len(df_result[df_result['df2_SKU'].isnull()])
-    missing_df2_rows = len(df_result[df_result['canal_SKU'].isnull()])
-
-
-    # Filtrar el DataFrame para incluir sólo los productos con un aumento mayor a 0%
-    increased_products = df_result[df_result['Porcentaje de aumento'] > 0]
-
-    # Calcular el aumento promedio sólo con los productos filtrados
-    average_increase = increased_products['Porcentaje de aumento'].mean()
-    
-    # Calcular la cantidad de productos que sufrieron un aumento
-    num_products_with_increase = len(increased_products)
-
-    excessive_threshold = 10
-    excessive_increases = df_result[df_result['Porcentaje de aumento'] > excessive_threshold]
-
-    print()
-    print(f"En general, los productos aumentaron en un {average_increase:.2f}%.")
-    print(f"De los {total_rows} productos, {num_products_with_increase} sufrieron un aumento.")
-    print()
-    print(f"Total de filas en df_result: {total_rows}")
-    print(f"Filas con similaridad del 100%: {exact_match_count}")
-    print(f"Filas de CANAL no encontradas en df2: {missing_df1_rows}")
-    print(f"Filas de df2 no encontradas en CANAL: {missing_df2_rows}")
-    print()
-    print("Archivo CONCATENADO guardado como",archivo_resultado)
-    print()
-
-    if len(excessive_increases) > 0:
-        print(f"Se encontraron {len(excessive_increases)} productos con un aumento excesivo:")
-        for idx, row in excessive_increases.iterrows():
-            print(f"  - {row['canal_Nombre']} (SKU: {row['canal_SKU']}) aumentó un {row['Porcentaje de aumento']:.2f}%.")
-    else:
-        print("No se encontraron aumentos excesivos en los productos.")
-
 
 ############################################################################# ALGABO ########################################################################################
 ############################################################################# ALGABO ########################################################################################
