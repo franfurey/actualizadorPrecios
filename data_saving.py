@@ -2,14 +2,31 @@ import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 import os
 
+def crear_directorios_y_rutas(proveedor):
+    directorio1 = f'./procesados/procesadosCanal/'
+    directorio2 = f'./procesados/'
+    directorio3 = f'proveedor/{proveedor}/listos'
+    directorio4 = f'proveedor/{proveedor}/listos/tiendaNube'
+    
+    # Crear los directorios si no existen
+    for directorio in [directorio1, directorio2, directorio3, directorio4]:
+        os.makedirs(directorio, exist_ok=True)
+    
+    archivo1 = f'{directorio1}/{proveedor}.xlsx'
+    archivo2 = f'{directorio2}/{proveedor}.xlsx'
+    archivo_resultado = f'{directorio3}/{proveedor}.xlsx'
+    archivo_tiendaNube = f'{directorio4}/{proveedor}'
+    
+    return archivo1, archivo2, archivo_resultado, archivo_tiendaNube
+
+
 def extract_df2_only(df_result):
     df2_only = df_result[df_result['Identificador de URL'].isna() & df_result['df2_Nombre'].notna()]
     df2_only = df2_only[['df2_Nombre', 'df2_SKU', 'df2_Código de barras', 'df2_Costo']]
     return df2_only
 
 
-def save_filtered_df(df, proveedor, increase_percentage):
-    filename = f'./listos/tiendaNube/{proveedor}'
+def save_filtered_df(df, filename, increase_percentage):
 
     # Filtrar las filas con un aumento
     increased_df = df[df['Porcentaje de aumento'] > 0].copy()
@@ -40,9 +57,10 @@ def save_filtered_df(df, proveedor, increase_percentage):
 
 
 
-
-
 def save_dataframe_to_excel_with_adjusted_columns(dataframe, file_path):
+    # Crear los directorios en la ruta del archivo si no existen
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
     # Crear un nuevo libro de trabajo de openpyxl
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -69,3 +87,4 @@ def save_dataframe_to_excel_with_adjusted_columns(dataframe, file_path):
 
     # Guardar el libro de trabajo en el archivo de Excel
     wb.save(file_path)
+
