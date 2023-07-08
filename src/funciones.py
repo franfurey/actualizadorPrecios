@@ -45,7 +45,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df = df.rename(columns={'SKU_modificado': 'SKU'})
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesados/procesadosCanal"
+    processed_dir = "./data/procesados/procesadosCanal"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -102,7 +102,7 @@ def clean_algabo(filename, new_filename=None):
     df['Costo'] = df['Costo'] * 1.21
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesados"
+    processed_dir = "./data/procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -180,7 +180,7 @@ def clean_furey(filename, new_filename=None):
 
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesados"
+    processed_dir = "./data/procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -251,7 +251,7 @@ def clean_teddy(filename, new_filename=None):
     df['Costo'] = df['Costo'].fillna(0).apply(lambda x: int(float(str(x).split('.')[0])))
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesados"
+    processed_dir = "./data/procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:
@@ -358,7 +358,7 @@ def scrape_drimel(urls):
     df['SKU'] = df['SKU'].astype(int)
     df = df.sort_values('SKU', ascending=True)
 
-    df.to_excel('./procesados/drimel.xlsx', index=False)
+    df.to_excel('./data/procesados/drimel.xlsx', index=False)
     print('Archivo guardado con exito')
     return
 
@@ -390,7 +390,7 @@ def clean_upalala(filename, new_filename=None):
 
 
     # Guardar el archivo de Excel modificado en la carpeta "procesados"
-    processed_dir = "./procesados"
+    processed_dir = "./data/procesados"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:

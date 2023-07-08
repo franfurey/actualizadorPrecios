@@ -40,7 +40,7 @@ def eliminar_formas_no_imagenes(filename):
 
 def guardar_archivo(df, filename, new_filename=None):
     """Guarda un DataFrame modificado en un nuevo archivo de Excel"""
-    processed_dir = "./procesados/procesadosCanal"
+    processed_dir = "./data/procesados/procesadosCanal"
     os.makedirs(processed_dir, exist_ok=True)  # crea la carpeta si no existe
     
     if new_filename is None:

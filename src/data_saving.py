@@ -3,10 +3,10 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 import os
 
 def crear_directorios_y_rutas(proveedor):
-    directorio1 = f'./procesados/procesadosCanal/'
-    directorio2 = f'./procesados/'
-    directorio3 = f'proveedor/{proveedor}/listos'
-    directorio4 = f'proveedor/{proveedor}/listos/tiendaNube'
+    directorio1 = f'./data/procesados/procesadosCanal/'
+    directorio2 = f'./data/procesados/'
+    directorio3 = f'./data/proveedor/{proveedor}/listos'
+    directorio4 = f'./data/proveedor/{proveedor}/listos/tiendaNube'
     
     # Crear los directorios si no existen
     for directorio in [directorio1, directorio2, directorio3, directorio4]:

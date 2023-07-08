@@ -1,8 +1,8 @@
 import os
-from data_saving import save_dataframe_to_excel_with_adjusted_columns, extract_df2_only, save_filtered_df, crear_directorios_y_rutas
-from data_loading import load_and_prepare_dataframes
-from data_processing import calculate_similarity, add_non_matching_rows
-from analysis import prepare_result, generate_report
+from src.data_saving import save_dataframe_to_excel_with_adjusted_columns, extract_df2_only, save_filtered_df, crear_directorios_y_rutas
+from src.data_loading import load_and_prepare_dataframes
+from src.data_processing import calculate_similarity, add_non_matching_rows
+from src.analysis import prepare_result, generate_report
 
 
 increase_percentage_dict = {
