@@ -19,7 +19,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
 
     df = df[['Identificador de URL', 'Nombre', 'Precio',
               'SKU','Código de barras','MPN (Número de pieza del fabricante)',
-              'Costo','Categorías', 'Tags', 'Título para SEO', 'Descripción para SEO']]
+              'Costo','Categorías', 'Tags', 'Título para SEO', 'Descripción para SEO','Descripción','Marca']]
 
     # Filtrar por valor específico en la columna MPN
     if mpn_value is not None:

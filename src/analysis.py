@@ -1,8 +1,12 @@
 import pandas as pd
 
 def prepare_result(df_result):
-    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'df2_Nombre', 'Marca', 'canal_SKU', 'df2_SKU', 
-                           'canal_Código de barras', 'df2_Código de barras', 'canal_Costo', 'df2_Costo', 'Precio', 'similarity']]
+    df_result = df_result[['Identificador de URL', 'canal_Nombre', 'df2_Nombre', 'Marca',
+                            'canal_SKU', 'df2_SKU', 
+                           'canal_Código de barras', 'df2_Código de barras',
+                            'canal_Costo', 'df2_Costo', 'Precio', 'similarity',
+                           'canal_Categorías','canal_Tags','canal_Título para SEO',
+                           'canal_Descripción para SEO','canal_Marca','canal_Descripción']]
     df_result[['canal_Costo', 'df2_Costo']] = df_result[['canal_Costo', 'df2_Costo']].apply(
         lambda x: pd.to_numeric(x.astype(str).str.replace(',', ''), errors='coerce')
     )

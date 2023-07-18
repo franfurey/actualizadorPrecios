@@ -27,7 +27,7 @@ def concat(proveedor):
 
     # Guarda df_result y df2_only
     save_dataframe_to_excel_with_adjusted_columns(df_result, archivo_resultado)
-    save_dataframe_to_excel_with_adjusted_columns(df2_only, f'proveedor/{proveedor}/listos/nuevos/{proveedor}_only.xlsx')
+    save_dataframe_to_excel_with_adjusted_columns(df2_only, f'data/proveedor/{proveedor}/nuevos/{proveedor}_only.xlsx')
 
     # Generar y mostrar estadísticas.
     generate_report(df_result, archivo_resultado)
