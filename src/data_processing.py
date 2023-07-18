@@ -1,34 +1,139 @@
 import pandas as pd
-import openpyxl
-from openpyxl.utils.dataframe import dataframe_to_rows
 from fuzzywuzzy import fuzz
 
 def calculate_similarity(df1, df2):
-    df_result = pd.DataFrame(columns=['Identificador de URL', 'canal_Nombre', 'Precio', 'canal_SKU', 
-                                      'canal_Código de barras', 'canal_Costo', 'df2_SKU', 'df2_Nombre', 
-                                      'df2_Código de barras', 'df2_Costo', 'similarity', 'Marca'])
+    rows_list = []
+    
+    df1 = df1.copy()  # Hacer una copia para evitar advertencias
+    df2 = df2.copy()  # Hacer una copia para evitar advertencias
+
     for i, row1 in df1.iterrows():
         for j, row2 in df2.iterrows():
             similarity = fuzz.token_set_ratio(row1['Código de barras'], row2['Código de barras'])
             if similarity >= 99:
-                df_result.loc[len(df_result)] = [
-                    row1['Identificador de URL'], row1['Nombre'], row1['Precio'], row1['SKU'], 
-                    row1['Código de barras'], row1['Costo'], row2['SKU'], row2['Nombre'], 
-                    row2['Código de barras'], row2['Costo'], similarity, row2.get('Marca', "")
-                ]
+                row_dict = {
+                    'Identificador de URL': row1['Identificador de URL'], 
+                    'canal_Nombre': row1['Nombre'], 
+                    'Precio': row1['Precio'], 
+                    'canal_SKU': row1['SKU'], 
+                    'canal_Código de barras': row1['Código de barras'], 
+                    'canal_Costo': row1['Costo'], 
+                    'df2_SKU': row2['SKU'], 
+                    'df2_Nombre': row2['Nombre'], 
+                    'df2_Código de barras': row2['Código de barras'], 
+                    'df2_Costo': row2['Costo'], 
+                    'similarity': similarity, 
+                    'Marca': row2.get('Marca', ""), 
+                    'canal_Categorías': row1['Categorías'], 
+                    'canal_Tags': row1['Tags'], 
+                    'canal_Título para SEO': row1['Título para SEO'], 
+                    'canal_Descripción para SEO': row1['Descripción para SEO'], 
+                    'canal_Descripción': row1['Descripción'], 
+                    'canal_Marca': row1['Marca']
+                }
+                rows_list.append(row_dict)
                 break
         else:
-            df_result.loc[len(df_result)] = [
-                row1['Identificador de URL'], row1['Nombre'], row1['Precio'], row1['SKU'], 
-                row1['Código de barras'], row1['Costo'], None, None, None, None, None, None
-            ]
+            row_dict = {
+                'Identificador de URL': row1['Identificador de URL'], 
+                'canal_Nombre': row1['Nombre'], 
+                'Precio': row1['Precio'], 
+                'canal_SKU': row1['SKU'], 
+                'canal_Código de barras': row1['Código de barras'], 
+                'canal_Costo': row1['Costo'], 
+                'df2_SKU': None, 
+                'df2_Nombre': None, 
+                'df2_Código de barras': None, 
+                'df2_Costo': None, 
+                'similarity': None, 
+                'Marca': None, 
+                'canal_Categorías': row1['Categorías'], 
+                'canal_Tags': row1['Tags'], 
+                'canal_Título para SEO': row1['Título para SEO'], 
+                'canal_Descripción para SEO': row1['Descripción para SEO'], 
+                'canal_Descripción': row1['Descripción'], 
+                'canal_Marca': row1['Marca']
+            }
+            rows_list.append(row_dict)
+    
+    df_result = pd.DataFrame(rows_list)
     return df_result
 
+
 def add_non_matching_rows(df_result, df2):
+    rows_list = []
+    df2 = df2.copy()  # Hacer una copia para evitar advertencias
+
     for i, row2 in df2.iterrows():
         if not df_result['df2_SKU'].isin([row2['SKU']]).any():
-            df_result.loc[len(df_result)] = [
-                None, None, None, None, None, None, row2['SKU'], row2['Nombre'], 
-                row2['Código de barras'], row2['Costo'], None, row2.get("Marca", "")
-            ]
+            row_dict = {
+                'Identificador de URL': None, 
+                'canal_Nombre': None, 
+                'Precio': None, 
+                'canal_SKU': None, 
+                'canal_Código de barras': None, 
+                'canal_Costo': None, 
+                'df2_SKU': row2['SKU'], 
+                'df2_Nombre': row2['Nombre'], 
+                'df2_Código de barras': row2['Código de barras'], 
+                'df2_Costo': row2['Costo'], 
+                'similarity': None, 
+                'Marca': row2.get("Marca", ""), 
+                'canal_Categorías': None, 
+                'canal_Tags': None, 
+                'canal_Título para SEO': None, 
+                'canal_Descripción para SEO': None, 
+                'canal_Descripción': None, 
+                'canal_Marca': None
+            }
+            rows_list.append(row_dict)
+    
+    df_result = pd.concat([df_result, pd.DataFrame(rows_list)], ignore_index=True)
     return df_result
+
+brand_keywords = {
+    'Algabo': ['alg', 'alga', 'algabo'],
+    'Tablada': ['tablada'],
+    'Chapoteando': ['ch '],
+    'Furey': ['furey'],
+    'Coronet': ['coronet'],
+    'Ibc': ['ibc'],
+    'Jessamy': ['jmy', 'jessamy'],
+    'O2+': ['o2+'],
+    'Drogal': ['drogal'],
+    'Dexal': ['dexal'],
+    'Hipoalergic': ['hipo'],
+    'Trux': ['trux'],
+    'Mary bosques': ['mb ', 'mary bosques'],
+    'Nonisec': ['nonisec'],
+    'Repuesto service': ['rep '],
+    'Bremen': ['bremen'],
+    'Neojet': ['neojet'],
+    'Jactans': ['jac ', 'jactans'],
+    'Disney': ['dis ', 'disney'],
+    'Mas': ['ms ', 'mas'],
+    'Pademed': ['pademed'],
+    'Mac gregor': ['mac '],
+    'Porta': ['porta'],
+    'Silfab': ['silfab'],
+    'Lenox': ['lx ', 'lenox'],
+    'Dismar': ['dismar'],
+    'Vertice': ['vertice'],
+    'Exatherm': ['exatherm'],
+    'Otowil': ['oto '],
+    'Xzn': ['xzn '],
+    'Doncella': ['don '],
+    'Vais': ['vais']
+}
+
+
+
+def assign_brand(product_name):
+    product_name = product_name.lower()
+    for brand, keywords in brand_keywords.items():
+        for keyword in keywords:
+            if keyword.lower() in product_name:
+                return brand
+    return None
+
+# df['canal_Marca'] = df['df2_Nombre'].apply(assign_brand)
