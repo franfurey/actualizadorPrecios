@@ -126,14 +126,29 @@ brand_keywords = {
     'Vais': ['vais']
 }
 
+def assign_brand(proveedor):
+    path = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/data/proveedor/{proveedor}/listos/{proveedor}.xlsx'
 
+    # Leer el archivo de Excel
+    df = pd.read_excel(path, usecols=['Identificador de URL', 'canal_Marca', 'df2_Nombre'])
 
-def assign_brand(product_name):
-    product_name = product_name.lower()
-    for brand, keywords in brand_keywords.items():
-        for keyword in keywords:
-            if keyword.lower() in product_name:
-                return brand
+    # Eliminar filas con valores nulos en 'df2_Nombre' o 'Identificador de URL'
+    df = df.dropna(subset=['df2_Nombre', 'Identificador de URL'])
+
+    # Contar el número de filas con valores vacíos en 'canal_Marca'
+    total_empty = df['canal_Marca'].isna().sum()
+    print('Cantidad de productos sin Marca definida: ', total_empty)
+
+    # Asignar marca a cada producto
+    for i in df.index:
+        product_name = df.loc[i, 'df2_Nombre'].lower()
+        for brand, keywords in brand_keywords.items():
+            for keyword in keywords:
+                if keyword.lower() in product_name:
+                    df.loc[i, 'canal_Marca'] = brand
+                    break
+
+    # Guardar el DataFrame resultante en un nuevo archivo de Excel
+    df.to_excel(path.replace('.xlsx', '_updated.xlsx'), index=False)
+
     return None
-
-# df['canal_Marca'] = df['df2_Nombre'].apply(assign_brand)
