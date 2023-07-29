@@ -26,3 +26,4 @@ mysql-connector-python
 flask-login
 sqlalchemy
 pymysql
+xlrd

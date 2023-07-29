@@ -26,7 +26,6 @@ def leer_archivo(filename):
     return df
 
 def eliminar_formas_no_imagenes(filename):
-    """Elimina las formas que no son imágenes en la hoja de cálculo"""
     wb = openpyxl.load_workbook(filename)
     ws = wb.active
     try:

@@ -6,6 +6,7 @@
 __pycache__
 venv
 openai.env
+db.env
 .env
 
 # Byte-compiled / optimized / DLL files
