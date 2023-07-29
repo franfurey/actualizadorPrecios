@@ -1,0 +1,35 @@
+<!-- templates/proveedor_files.html -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <title>Proveedor - {{ date }}</title>
+  </head>
+  <body>
+    
+    <div class="container">
+
+        <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'">Volver</button>
+      <h1>{{ proveedor.nombre }} - {{ date }}</h1>
+
+      <h2>Archivos subidos</h2>
+      <ul>
+        {% for file in files %}
+        <li><a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}">{{ file }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -18,3 +18,11 @@ urllib3==1.26.15
 openai
 python-dotenv
 langchain
+tiktoken
+chromadb
+flask
+flask-sqlalchemy 
+mysql-connector-python
+flask-login
+sqlalchemy
+pymysql
