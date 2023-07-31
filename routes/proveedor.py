@@ -7,6 +7,10 @@ from database import Proveedor, session
 import os
 from flask import Blueprint, send_from_directory
 from datetime import datetime
+import shutil
+from userscripts.drogueriamg import rename_files
+
+
 
 # Crea una "blueprint" para las rutas del proveedor
 proveedor_blueprint = Blueprint('proveedor_blueprint', __name__)
@@ -28,7 +32,7 @@ def proveedor(proveedor_id):
                 filename = secure_filename(file.filename)
                 
                 # Define el directorio de almacenamiento
-                date = datetime.now().strftime('%Y-%m-%d')
+                date = datetime.now().strftime('%d-%m-%Y')
                 directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{current_user.id}/{proveedor_id}/{date}'
                 ensure_directory_exists(directory)
 
@@ -64,3 +68,20 @@ def proveedor_files(proveedor_id, date):
 def serve_file(proveedor_id, date, filename):
     directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{current_user.id}/{proveedor_id}/{date}'
     return send_from_directory(directory, filename)
+
+@proveedor_blueprint.route('/<int:proveedor_id>/<date>/delete', methods=['POST'])
+@login_required
+def delete(proveedor_id, date):
+    directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{current_user.id}/{proveedor_id}/{date}'
+    shutil.rmtree(directory)
+    flash('Fecha eliminada correctamente')
+    return redirect(url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor_id))
+
+
+@proveedor_blueprint.route('/<int:proveedor_id>/<date>/rename', methods=['POST'])
+@login_required
+def rename(proveedor_id, date):
+    directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{current_user.id}/{proveedor_id}/{date}'
+    rename_files(current_user.id, proveedor_id, directory)
+    flash('Archivos renombrados correctamente')
+    return redirect(url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor_id, date=date))
