@@ -2,16 +2,13 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 import os
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
-from sqlalchemy import ForeignKeyConstraint
-from sqlalchemy import text, ForeignKey
-from sqlalchemy.orm import foreign
 
 load_dotenv('db.env')
 
@@ -68,20 +65,21 @@ def create_user(username, password):
     client_directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{new_user.id}'
     os.makedirs(client_directory, exist_ok=True)  # Crea la carpeta del cliente si no existe
 
-    proveesync_directory = os.path.join(client_directory, 'proveesync')
-    os.makedirs(proveesync_directory, exist_ok=True)  # Crea la carpeta proveesync si no existe
+    userscripts_directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/userscripts'
+    os.makedirs(userscripts_directory, exist_ok=True)  # Crea la carpeta userscripts si no existe
 
-    proveesync_file = os.path.join(proveesync_directory, 'proveesync.py')
-    with open(proveesync_file, 'w') as f:  # Crea el archivo proveesync.py
-        f.write("# Este es el archivo proveesync.py")
+    user_script_file = os.path.join(userscripts_directory, f'{new_user.id}.py')
+    with open(user_script_file, 'w') as f:  # Crea el archivo .py del usuario
+        f.write(f"# Este es el archivo de {new_user.email}")  # Aquí se usa el username registrado
 
-    proveedores_directory = os.path.join(proveesync_directory, 'proveedores')
+    proveedores_directory = os.path.join(client_directory, 'proveedores')
     os.makedirs(proveedores_directory, exist_ok=True)  # Crea la carpeta proveedores si no existe
 
     for proveedor in new_user.proveedores:
         proveedor_file = os.path.join(proveedores_directory, f'{proveedor.id}.py')
         with open(proveedor_file, 'w') as f:  # Crea el archivo del proveedor
             f.write(f"# Este es el archivo del proveedor: {proveedor.nombre}")
+
 
 
 Base.metadata.create_all(engine)

@@ -16,9 +16,15 @@
   <body>
     
     <div class="container">
+      
 
         <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'">Volver</button>
       <h1>{{ proveedor.nombre }} - {{ date }}</h1>
+
+      <form action="{{ url_for('proveedor_blueprint.rename', proveedor_id=proveedor.id, date=date) }}" method="post">
+        <button type="submit" class="btn btn-primary">Generar archivos</button>
+      </form>
+      
 
       <h2>Archivos subidos</h2>
       <ul>

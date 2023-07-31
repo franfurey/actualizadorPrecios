@@ -1,11 +1,11 @@
-import os
 from dotenv import load_dotenv
+import os
 
+# Cargar las variables de entorno del archivo .env
 load_dotenv('db.env')
 
-print(os.getenv('DATABASE_URL'))
-print(os.getenv('DATABASE_URI'))
-print(os.getenv('HOST'))
-print(os.getenv('USERNAME'))
-print(os.getenv('PASSWORD'))
-print(os.getenv('DATABASE'))
+# Obtener el valor de la variable DATABASE_URL
+database_url = os.getenv("DATABASE_URL")
+
+# Imprimir el valor de la variable DATABASE_URL
+print(database_url)

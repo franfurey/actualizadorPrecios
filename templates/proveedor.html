@@ -28,11 +28,22 @@
       </form>
 
       <h2>Fechas</h2>
-      <ul>
-          {% for date in dates %}
-          <li><a href="{{ url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor.id, date=date) }}">{{ date }}</a></li>
-          {% endfor %}
-      </ul>
+      <div>
+        {% for date in dates %}
+        <div style="margin-bottom: 20px;">
+          <a href="{{ url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor.id, date=date) }}">{{ date }}</a>
+          <form action="{{ url_for('proveedor_blueprint.rename', proveedor_id=proveedor.id, date=date) }}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-primary">Generar Archivo</button>
+          </form>
+          <form action="{{ url_for('proveedor_blueprint.delete', proveedor_id=proveedor.id, date=date) }}" method="post" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta fecha y todos sus archivos?');">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
+        </div>
+        {% endfor %}
+    </div>
+    
+        
+      </form>      
     </div>
 
     <!-- Bootstrap Bundle with Popper -->

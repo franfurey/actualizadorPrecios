@@ -1,17 +1,18 @@
 # main.py
 # Importa las bibliotecas necesarias
-from flask import Flask, render_template, request, redirect, url_for
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask
+from flask_login import LoginManager, login_required, logout_user
 from database import User, session
 from routes.login import login as login_view
 import os
 from routes.dashboard import dashboard as dashboard_view
+from routes.dashboard import dashboard_blueprint
 from routes.proveedor import proveedor as proveedor_view
 from routes.proveedor import proveedor_blueprint
 
 app = Flask(__name__)
 app.register_blueprint(proveedor_blueprint, url_prefix='/proveedor')
+app.register_blueprint(dashboard_blueprint, url_prefix='/dashboard')
 
 # Establece la clave secreta para tu aplicación Flask
 # La clave secreta se utiliza para mantener las sesiones seguras

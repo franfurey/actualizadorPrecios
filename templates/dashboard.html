@@ -5,7 +5,12 @@
 <h2>Tus Proveedores</h2>
 <ul>
     {% for proveedor in proveedores %}
-    <li><a href="{{ proveedor.url }}">{{ proveedor.nombre }}</a></li>
+    <li>
+        <a href="{{ proveedor.url }}">{{ proveedor.nombre }}</a>
+        <form action="{{ url_for('dashboard_blueprint.delete', proveedor_id=proveedor['id']) }}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este proveedor?')">Eliminar</button>
+        </form>
+    </li>
     {% endfor %}
 </ul>
 
@@ -15,4 +20,3 @@
     <input type="text" id="nombre_proveedor" name="nombre_proveedor">
     <input type="submit" value="Agregar Proveedor">
 </form>
-
