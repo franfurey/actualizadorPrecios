@@ -72,14 +72,6 @@ def create_user(username, password):
     with open(user_script_file, 'w') as f:  # Crea el archivo .py del usuario
         f.write(f"# Este es el archivo de {new_user.email}")  # Aquí se usa el username registrado
 
-    proveedores_directory = os.path.join(client_directory, 'proveedores')
-    os.makedirs(proveedores_directory, exist_ok=True)  # Crea la carpeta proveedores si no existe
-
-    for proveedor in new_user.proveedores:
-        proveedor_file = os.path.join(proveedores_directory, f'{proveedor.id}.py')
-        with open(proveedor_file, 'w') as f:  # Crea el archivo del proveedor
-            f.write(f"# Este es el archivo del proveedor: {proveedor.nombre}")
-
 
 
 Base.metadata.create_all(engine)

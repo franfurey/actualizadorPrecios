@@ -5,12 +5,11 @@ from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 from database import Proveedor, session
 import os
+import sys
 from flask import Blueprint, send_from_directory
 from datetime import datetime
 import shutil
-from userscripts.drogueriamg import rename_files
-
-
+from importlib import import_module
 
 # Crea una "blueprint" para las rutas del proveedor
 proveedor_blueprint = Blueprint('proveedor_blueprint', __name__)
@@ -81,7 +80,27 @@ def delete(proveedor_id, date):
 @proveedor_blueprint.route('/<int:proveedor_id>/<date>/rename', methods=['POST'])
 @login_required
 def rename(proveedor_id, date):
+    # Obtenemos el objeto proveedor completo desde la base de datos.
+    proveedor = session.query(Proveedor).get(proveedor_id)
     directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{current_user.id}/{proveedor_id}/{date}'
-    rename_files(current_user.id, proveedor_id, directory)
+
+    # Imprime el directorio actual y sys.path para depuración.
+    print("Directorio actual:", os.getcwd())
+    print("sys.path:", sys.path)
+
+    # Importa el módulo de forma dinámica.
+    module_name = f"userscripts.{current_user.id}"
+    try:
+        module = import_module(module_name)
+        print("Módulo importado con éxito")
+        print(f"Módulo importado: {module}")
+    except ImportError:
+        flash('No se pudo importar el módulo')
+        return redirect(url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor_id, date=date))
+
+    # Llama a la función del módulo, pasando el objeto proveedor completo.
+    print("Llamando a rename_files")
+    module.process_files(current_user.id, proveedor, directory)  # Aquí pasamos proveedor en lugar de proveedor_id
     flash('Archivos renombrados correctamente')
     return redirect(url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor_id, date=date))
+
