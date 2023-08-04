@@ -28,3 +28,4 @@ sqlalchemy
 pymysql
 xlrd
 gunicorn
+mysqlclient
