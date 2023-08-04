@@ -27,3 +27,4 @@ flask-login
 sqlalchemy
 pymysql
 xlrd
+gunicorn
