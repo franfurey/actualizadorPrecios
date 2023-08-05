@@ -25,7 +25,7 @@ flask-sqlalchemy
 mysql-connector-python
 flask-login
 sqlalchemy
-pymysql
+PyMySQL
 xlrd
 gunicorn
 mysqlclient

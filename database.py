@@ -9,20 +9,18 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
+import tempfile
 
 load_dotenv('db.env')
 
 db_connection_string = os.getenv("DATABASE_URL")
 
-ssl_args = {
-    'ssl': {
-        "ca": "/etc/ssl/cert.pem"
-    }
-}
-
-engine = create_engine(
-    db_connection_string,
-    connect_args=ssl_args)
+engine = create_engine(db_connection_string,
+                      connect_args={
+                        "ssl":{
+                          "ssl_ca": "/etc/ssl/cert.pem"
+                        }
+                      })
 
 # create a configured "Session" class
 Session = sessionmaker(bind=engine)
@@ -71,7 +69,5 @@ def create_user(username, password):
     user_script_file = os.path.join(userscripts_directory, f'{new_user.id}.py')
     with open(user_script_file, 'w') as f:  # Crea el archivo .py del usuario
         f.write(f"# Este es el archivo de {new_user.email}")  # Aquí se usa el username registrado
-
-
 
 Base.metadata.create_all(engine)

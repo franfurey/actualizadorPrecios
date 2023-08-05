@@ -1,2 +1,3 @@
-import numpy
-print(numpy.__version__)
+import os
+
+print(os.path.exists('/etc/ssl/cert.pem'))  # Debería retornar True
