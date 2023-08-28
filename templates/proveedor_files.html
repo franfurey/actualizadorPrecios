@@ -1,41 +1,43 @@
-<!-- templates/proveedor_files.html -->
+{% extends 'base.html' %}
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% block title %}Proveedor - {{ date }}{% endblock %}
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-    <title>Proveedor - {{ date }}</title>
-  </head>
-  <body>
+{% block content %}
+  <div class="container">
+    <!-- Agrega el botón de volver aquí -->
+    <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'" class="btn btn-secondary mb-3">Volver</button>
     
-    <div class="container">
-      
+    <h1>{{ proveedor.nombre }} - {{ date }}</h1>
 
-        <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'">Volver</button>
-      <h1>{{ proveedor.nombre }} - {{ date }}</h1>
-
+    <div class="card mb-4 p-4">
       <form action="{{ url_for('proveedor_blueprint.rename', proveedor_id=proveedor.id, date=date) }}" method="post">
-        <button type="submit" class="btn btn-primary">Generar archivos</button>
+        <button type="submit" class="btn">Generar Reportes</button>
       </form>
-      
+    </div>
 
+    <div class="card p-4">
+      <h2>Resumen del informe</h2>
+      <p>Total de productos en nuestra base de datos: {{ report_data.total_products_our_db }}</p>
+      <p>Total de productos en la base de datos de {{ proveedor.nombre }}: {{ report_data.total_products_supplier_db }}</p>
+      <p>Total de productos encontrados en ambas listas: {{ report_data.matched_products }}</p>
+      <p>Total de productos que están en nuestra base de datos pero no en la de {{ proveedor.nombre }}: {{ report_data.missing_df1_rows }}</p>
+      <p>Productos nuevos incorporados por {{ proveedor.nombre }} que no tenemos en nuestra base de datos: {{ report_data.missing_df2_rows }}</p>
+    </div>
+    
+
+    <div class="card p-4">
       <h2>Archivos subidos</h2>
-      <ul>
+      <ul class="list-group">
         {% for file in files %}
-        <li><a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}">{{ file }}</a></li>
+          <li class="list-group-item">
+            <!-- Agrega target="_blank" aquí -->
+            <a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}" target="_blank">
+              <i class="fas fa-file-alt"></i>  <!-- Icono de archivo -->
+              <span class="h5">{{ file }}</span>  <!-- Nombre del archivo -->
+            </a>
+          </li>
         {% endfor %}
       </ul>
     </div>
-
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
+  </div>
+{% endblock %}

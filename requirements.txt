@@ -29,3 +29,6 @@ PyMySQL
 xlrd
 gunicorn
 mysqlclient
+boto3
+python-Levenshtein
+PyGithub

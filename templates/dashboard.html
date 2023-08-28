@@ -1,22 +1,36 @@
-<!-- templates/dashboard.html -->
+{% extends 'base.html' %}
 
-<h1>Bienvenido, {{ current_user.email }}</h1>
+{% block title %}Dashboard{% endblock %}
 
-<h2>Tus Proveedores</h2>
-<ul>
+{% block content %}
+  <h1>Bienvenido, {{ current_user.email }}</h1>
+
+  <div class="card mb-4 p-4">
+    <h2>Agregar un Proveedor</h2>
+    <form method="POST">
+        <div class="form-group">
+          <label for="nombre_proveedor">Nombre del Proveedor:</label>
+          <input type="text" class="form-control" id="nombre_proveedor" name="nombre_proveedor">
+        </div>
+        <button type="submit" class="btn">Agregar Proveedor</button>
+    </form>
+  </div>
+
+  <div class="card p-4">
+    <h2>Tus Proveedores</h2>
     {% for proveedor in proveedores %}
-    <li>
-        <a href="{{ proveedor.url }}">{{ proveedor.nombre }}</a>
-        <form action="{{ url_for('dashboard_blueprint.delete', proveedor_id=proveedor['id']) }}" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este proveedor?')">Eliminar</button>
-        </form>
-    </li>
+      <a href="{{ proveedor.url }}" class="text-decoration-none clickable-card">
+        <div class="card mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="card date-card">
+              <span class="date-text">{{ proveedor.nombre }}</span>
+            </div>
+            <form action="{{ url_for('dashboard_blueprint.delete', proveedor_id=proveedor['id']) }}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este proveedor?')">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </a>
     {% endfor %}
-</ul>
-
-<h2>Agregar un Proveedor</h2>
-<form method="POST">
-    <label for="nombre_proveedor">Nombre del Proveedor:</label>
-    <input type="text" id="nombre_proveedor" name="nombre_proveedor">
-    <input type="submit" value="Agregar Proveedor">
-</form>
+  </div>
+{% endblock %}

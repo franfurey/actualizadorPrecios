@@ -1,17 +1,18 @@
 # database.py
 
-import sqlalchemy
-from sqlalchemy import create_engine, text
+import os
+import boto3
+from github import Github
+from dotenv import load_dotenv
+from flask_login import UserMixin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from werkzeug.security import generate_password_hash
-from dotenv import load_dotenv
-import os
 from sqlalchemy.orm import relationship
-from flask_login import UserMixin
-import tempfile
+from sqlalchemy.exc import SQLAlchemyError
+from routes.s3_utils import upload_file_to_s3
+from werkzeug.security import generate_password_hash
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 
 load_dotenv('db.env')
 
@@ -22,7 +23,8 @@ engine = create_engine(db_connection_string,
                         "ssl":{
                           "ssl_ca": "/etc/ssl/cert.pem"
                         }
-                      })
+                      },
+                      pool_timeout=60)
 
 # create a configured "Session" class
 Session = sessionmaker(bind=engine)
@@ -53,23 +55,40 @@ class Proveedor(Base):
 
     id = Column(Integer, primary_key=True)
     nombre = Column(String(100))
-    user_id = Column(Integer)
+    user_id = Column(Integer, ForeignKey('users.id'))
 
 def create_user(username, password):
-    hashed_password = generate_password_hash(password, method='sha256')
-    new_user = User(email=username, password=hashed_password)
-    session.add(new_user)
-    session.commit()
+    session = Session()  # Crea una nueva sesión
+    # Crear un cliente S3
+    s3_client = boto3.client('s3', region_name='sa-east-1')
+    # Token de acceso personal de GitHub
+    github_token = os.getenv("GITHUB_TOKEN")
+    # Crear una instancia de Github con tu token
+    g = Github(github_token)
+    # Obtener el repositorio en el que quieres trabajar
+    repo = g.get_repo("franfurey/actualizadorPrecios")
 
-    # Crear la estructura de carpetas y archivos después de que se haya creado el usuario
-    client_directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/clients/{new_user.id}'
-    os.makedirs(client_directory, exist_ok=True)  # Crea la carpeta del cliente si no existe
+    try:
+        hashed_password = generate_password_hash(password, method='sha256')
+        new_user = User(email=username, password=hashed_password)
+        session.add(new_user)
+        session.commit()
 
-    userscripts_directory = f'/Users/franciscofurey/00DataScience/Canal/actualizadorPrecios/userscripts'
-    os.makedirs(userscripts_directory, exist_ok=True)  # Crea la carpeta userscripts si no existe
+        # Simular la creación de una carpeta del cliente en S3
+        client_directory_key = f'clients/{new_user.id}/'
+        s3_client.put_object(Bucket='proveesync', Key=client_directory_key)
 
-    user_script_file = os.path.join(userscripts_directory, f'{new_user.id}.py')
-    with open(user_script_file, 'w') as f:  # Crea el archivo .py del usuario
-        f.write(f"# Este es el archivo de {new_user.email}")  # Aquí se usa el username registrado
+        # Contenido del archivo de usuario
+        user_script_file_content = f"# Este es el archivo de {new_user.email}"
+        # Ruta donde quieres crear el archivo en tu repositorio
+        user_script_file_path = f'userscripts/{new_user.id}.py'
+        # Crear el archivo en GitHub
+        repo.create_file(user_script_file_path, f"Creando archivo para el usuario {new_user.id}", user_script_file_content)
 
-Base.metadata.create_all(engine)
+       
+
+    except SQLAlchemyError as e:
+        session.rollback()  # Si hay algún error, deshaz los cambios en la base de datos
+        print(e)  # Imprime el error
+    finally:
+        session.close()  # Asegúrate de cerrar la sesión al final

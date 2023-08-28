@@ -1,0 +1,131 @@
+/* Colores */
+:root {
+  --color-primary: #1DB954;  /* Color primario */
+  --color-secondary: #242526;  /* Color secundario */
+  --color-bg: #121212;  /* Color de fondo */
+  --color-text: #E4E6EB;  /* Color del texto */
+  --color-text-light: #B0B3B8;  /* Color del texto secundario */
+}
+
+/* Tipografía */
+body {
+  font-family: 'Roboto', sans-serif;
+  color: var(--color-text);
+  line-height: 1.6;
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-primary);
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-secondary);
+}
+
+/* Espaciado */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.section {
+  padding: 60px 0;
+}
+
+/* Botones */
+.btn {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  padding: 15px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #1da350;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Navbar y Footer */
+.navbar, .card {
+  background-color: var(--color-secondary);
+  margin-bottom: 20px;
+}
+
+footer {
+  margin-top: 20px;
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid var(--color-text-light);
+  background-color: transparent;
+}
+
+/* Líneas de separación */
+hr {
+  border-top: 1px solid var(--color-text-light);
+}
+
+a:hover, a:focus {
+  color: #1DB954;  /* Cambia esto al color que prefieras */
+}
+
+.btn:hover, .btn:focus {
+  color: white;
+}
+
+.clickable-card {
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.clickable-card:hover {
+  color: var(--color-primary);
+}
+
+.date-card {
+  margin: 10px;
+  padding: 10px;
+  background-color: var(--color-secondary);
+}
+
+.date-text {
+  font-size: 1.2em;
+}
+
+.file-upload {
+  position: relative;
+}
+
+.file-upload-btn {
+  cursor: pointer;
+}
+
+.file-name {
+  margin-left: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+}

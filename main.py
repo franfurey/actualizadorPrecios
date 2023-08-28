@@ -1,14 +1,16 @@
 # main.py
 # Importa las bibliotecas necesarias
-from flask import Flask
-from flask_login import LoginManager, login_required, logout_user
-from database import User, session
-from routes.login import login as login_view
 import os
-from routes.dashboard import dashboard as dashboard_view
+from flask import Flask
+from database import Session
+from database import User, session
+from sqlalchemy.exc import SQLAlchemyError
+from routes.login import login as login_view
 from routes.dashboard import dashboard_blueprint
-from routes.proveedor import proveedor as proveedor_view
 from routes.proveedor import proveedor_blueprint
+from routes.dashboard import dashboard as dashboard_view
+from routes.proveedor import proveedor as proveedor_view
+from flask_login import LoginManager, login_required, logout_user
 
 app = Flask(__name__)
 app.register_blueprint(proveedor_blueprint, url_prefix='/proveedor')
@@ -24,11 +26,22 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Define la función que Flask-Login utiliza para interactuar con los usuarios
 @login_manager.user_loader
 def load_user(user_id):
-    # Busca el usuario en la base de datos
-    return session.query(User).get(int(user_id))
+    session = Session()  # Crea una nueva sesión
+
+    try:
+        # Busca al usuario en la base de datos
+        user = session.get(User, int(user_id))
+        session.expunge(user)  # Desvincula el objeto user de la sesión
+        session.commit()
+        return user
+    except SQLAlchemyError as e:
+        session.rollback()  # Si hay algún error, deshaz los cambios en la base de datos
+        print(e)  # Imprime el error
+    finally:
+        session.close()  # Asegúrate de cerrar la sesión al final
+
 
 # Define la ruta para la página de inicio
 @app.route('/', methods=['GET', 'POST'])

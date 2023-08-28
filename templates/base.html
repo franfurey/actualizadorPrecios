@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <!-- Incluye Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+  <!-- Incluye tu archivo CSS personalizado -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <title>{% block title %}{% endblock %} - ProveeSync</title>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<!-- Aquí va el contenido principal de tu página -->
+<div class="container">
+  {% block content %}
+  {% endblock %}
+</div>
+
+{% include 'footer.html' %}
+
+<!-- No olvides incluir jQuery y Bootstrap JS al final de tu archivo HTML -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>
