@@ -40,6 +40,8 @@ class User(UserMixin, Base):
     email = Column(String(120), unique=True, index=True)
     password = Column(String(128))
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)  # Nueva línea para saber si es administrador
+    company = Column(String(255))  # Aquí está tu nueva columna
 
     # Relación uno a muchos con la tabla Proveedores
     proveedores = relationship("Proveedor", backref="user", primaryjoin="User.id == foreign(Proveedor.user_id)")
@@ -92,3 +94,17 @@ def create_user(username, password):
         print(e)  # Imprime el error
     finally:
         session.close()  # Asegúrate de cerrar la sesión al final
+
+def create_admin_user(email, password):
+    session = Session()
+    try:
+        hashed_password = generate_password_hash(password, method='sha256')
+        admin_user = User(email=email, password=hashed_password, is_admin=True)
+        session.add(admin_user)
+        session.commit()
+        print(f"Admin user {email} created.")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print(f"Error: {e}")
+    finally:
+        session.close()

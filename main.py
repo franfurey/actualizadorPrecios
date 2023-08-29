@@ -1,16 +1,15 @@
 # main.py
 # Importa las bibliotecas necesarias
 import os
-from flask import Flask
-from database import Session
-from database import User, session
+from database import User, Session
 from sqlalchemy.exc import SQLAlchemyError
 from routes.login import login as login_view
 from routes.dashboard import dashboard_blueprint
 from routes.proveedor import proveedor_blueprint
 from routes.dashboard import dashboard as dashboard_view
 from routes.proveedor import proveedor as proveedor_view
-from flask_login import LoginManager, login_required, logout_user
+from flask import Flask, redirect, session, url_for, render_template
+from flask_login import LoginManager, login_required, logout_user, login_user, current_user
 
 app = Flask(__name__)
 app.register_blueprint(proveedor_blueprint, url_prefix='/proveedor')
@@ -57,12 +56,50 @@ def login():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    return dashboard_view()
+    if current_user.is_admin:
+        return redirect(url_for('admin_dashboard'))  # redirige al admin_dashboard si es admin
+    return dashboard_view()  # si no es admin, muestra la vista regular
 
 @app.route('/proveedor/<int:proveedor_id>', methods=['GET', 'POST'])
 @login_required
 def proveedor(proveedor_id):
     return proveedor_view(proveedor_id)
+
+@app.route('/impersonate/<int:user_id>')
+@login_required
+def impersonate(user_id):
+    if current_user.is_admin:
+        session['original_user_id'] = current_user.id  # Guardar el id del admin
+        user_to_impersonate = load_user(user_id)  # Cargar el usuario a impersonar
+        login_user(user_to_impersonate)  # Loguear como el nuevo usuario
+        return redirect(url_for('dashboard'))  # Redirigir al dashboard o donde quieras
+    else:
+        return "No tienes permisos para hacer esto."
+
+
+@app.route('/stop_impersonate')
+@login_required
+def stop_impersonate():
+    original_user_id = session.pop('original_user_id', None)
+    if original_user_id:
+        original_user = load_user(original_user_id)
+        login_user(original_user)
+        return redirect(url_for('dashboard'))
+    else:
+        return "No estás suplantando a nadie."
+    
+@app.route('/admin_dashboard')
+@login_required
+def admin_dashboard():
+    if not current_user.is_admin:
+        return "No tienes permisos para ver esta página."
+    
+    session = Session()  # Abre una nueva sesión
+    users = session.query(User).all()  # Consulta para obtener todos los usuarios
+    session.close()  # Cierra la sesión
+
+    return render_template('admin_dashboard.html', users=users)
+
 
 # Define la ruta para cerrar la sesión del usuario
 @app.route('/logout')

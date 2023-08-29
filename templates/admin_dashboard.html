@@ -1,0 +1,4 @@
+{% for user in users %}
+    <p>{{ user.email }}</p>
+    <a href="{{ url_for('impersonate', user_id=user.id) }}">Impersonar</a>
+{% endfor %}
