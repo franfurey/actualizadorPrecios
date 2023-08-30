@@ -91,45 +91,40 @@ def proveedor_files(proveedor_id, date):
     except Exception:
         session.rollback()
     finally:
-        # Ruta en S3 donde se encuentran los archivos
         directory = f'clients/{current_user.id}/{proveedor_id}/{date}'
-        
-        # Ajusta esto según tus necesidades
         excluded_files = ['combined.xlsx', 'final.xlsx']
         excluded_extensions = ['.json']
+        allowed_extensions = ['.xlsx', '.xls', '.csv','.pdf']
 
-        # Lista de archivos en el directorio
         files_in_directory = list_files_in_folder(bucket_name="proveesync", folder_path=directory)
 
-        # Filtra los archivos excluidos y las extensiones excluidas
-        allowed_extensions = ['.xlsx', '.xls', '.csv','.pdf']
+        # Añade lógica para excluir archivos renombrados
+        renamed_files = [f"{current_user.id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.{ext}"
+                         for file in files_in_directory for ext in ['csv', 'xlsx', 'xls']
+                        ]
+
+        excluded_files += renamed_files  # Añade los archivos renombrados a la lista de exclusión
+
         filtered_files = [os.path.basename(f) for f in files_in_directory
-                        if os.path.basename(f) not in excluded_files and
-                        os.path.splitext(f)[1] in allowed_extensions and
-                        f != '.DS_Store']
+                          if os.path.basename(f) not in excluded_files and
+                          os.path.splitext(f)[1] in allowed_extensions and
+                          f != '.DS_Store']
 
-
-
-        # Nombre de los archivos prioritarios
         proveedor_file = os.path.basename(f"{proveedor.nombre}.xlsx")
         report_file = os.path.basename("report.pdf")
 
-        # Crea la lista de archivos para mostrar, agregando primero los archivos prioritarios y luego el resto
         files_to_show = []
         if proveedor_file in filtered_files:
             files_to_show.append(proveedor_file)
-            filtered_files.remove(proveedor_file)  # Elimina el archivo prioritario de la lista
+            filtered_files.remove(proveedor_file)
         if report_file in filtered_files:
             files_to_show.append(report_file)
-            filtered_files.remove(report_file)  # Elimina el archivo prioritario de la lista
+            filtered_files.remove(report_file)
 
         files_to_show += filtered_files
 
-
-
-        # Leer los datos del informe
         report_data_path = os.path.join(directory, "report_data.json")
-        report_data = {} # Inicializa como un objeto vacío por defecto
+        report_data = {}
 
         try:
             report_data_content = download_file_from_s3(report_data_path, bucket_name="proveesync")
@@ -140,6 +135,7 @@ def proveedor_files(proveedor_id, date):
         result = render_template('proveedor_files.html', proveedor=proveedor, date=date, files=files_to_show, report_data=report_data)
         session.close()
         return result
+
 
 @proveedor_blueprint.route('/<int:proveedor_id>/<date>/<filename>', methods=['GET'])
 @login_required
