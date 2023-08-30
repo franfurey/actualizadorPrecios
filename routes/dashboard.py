@@ -1,7 +1,6 @@
 # routes/dashboard.py
 
 import os
-import shutil
 from github import Github
 from database import Proveedor, Session
 from sqlalchemy.exc import SQLAlchemyError

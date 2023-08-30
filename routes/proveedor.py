@@ -34,9 +34,16 @@ def proveedor(proveedor_id):
         directory = f'clients/{current_user.id}/{proveedor_id}'
         dates = list_folders_in_directory(directory, bucket_name="proveesync")
 
-        # Convertir las fechas en objetos datetime y ordenar
-        dates = sorted(dates, key=lambda x: datetime.strptime(x, '%d-%m-%Y'), reverse=True)
+        try:
+            # Convertir las fechas en objetos datetime y ordenar
+            if dates:  # Verifica que la lista de fechas no esté vacía
+                dates = sorted(dates, key=lambda x: datetime.strptime(x, '%d-%m-%Y'), reverse=True)
+        except ValueError:
+            print("Error de formato en las fechas.")
+            dates = []
+
         print("Fechas recuperadas:", dates)
+
         if request.method == 'POST':
             files = request.files.getlist('files[]')
             for file in files:
@@ -59,11 +66,13 @@ def proveedor(proveedor_id):
             return redirect(url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor_id))
 
         return render_template('proveedor.html', proveedor=proveedor, dates=dates)
+
     except Exception as e:
-        print("Error:", e) # Imprime el error
+        print("Error general:", e)  # Imprime el error
         session.rollback()  # Si hay un error, deshaz los cambios
-        flash(f'Error al procesar la solicitud: {e}', 'error') # Muestra un mensaje flash con el error
-        return redirect(url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor_id)) # Redirige a otra página
+        flash(f'Error al procesar la solicitud: {e}', 'error')  # Muestra un mensaje flash con el error
+        return redirect(url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor_id))  # Redirige a otra página
+
     finally:
         session.close()  # Asegúrate de cerrar la sesión al final
 

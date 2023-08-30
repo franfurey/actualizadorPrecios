@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Crear Cuenta{% endblock %}
 
 {% block content %}
-  <h1>Login</h1>
+  <h1>Crear Cuenta</h1>
   <form method="post">
     <div class="form-group">
       <label for="email">Email:</label>
@@ -13,8 +13,10 @@
       <label for="password">Password:</label>
       <input type="password" class="form-control" id="password" name="password" required>
     </div>
-    <button type="submit" class="btn">Submit</button>
+    <div class="form-group">
+      <label for="company">Company:</label>
+      <input type="text" class="form-control" id="company" name="company" required>
+    </div>
+    <button type="submit" class="btn">Crear Cuenta</button>
   </form>
-  <br>
-  <a href="{{ url_for('create_account') }}">Crear una cuenta</a>
 {% endblock %}

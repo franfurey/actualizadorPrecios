@@ -16,11 +16,14 @@ session = boto3.Session(
 s3_client = session.client('s3')
 
 def upload_file_to_s3(file_obj, object_name, bucket_name="proveesync"):
-    if isinstance(file_obj, BytesIO):
+    if file_obj == "":
+        s3_client.put_object(Bucket=bucket_name, Key=f"{object_name}/")
+    elif isinstance(file_obj, BytesIO):
         file_obj.seek(0)  # Asegurarse de que el cursor está al inicio del objeto en memoria
         s3_client.upload_fileobj(file_obj, bucket_name, object_name)
     else:
         s3_client.upload_file(file_obj, bucket_name, object_name)
+
 
 
 def download_file_from_s3(file_path, object_name, bucket_name="proveesync"):

@@ -2,6 +2,7 @@
 
 import os
 import boto3
+import requests
 from github import Github
 from dotenv import load_dotenv
 from flask_login import UserMixin
@@ -15,6 +16,22 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 
 load_dotenv('db.env')
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+
+
+def enviar_correo_mailgun(email, username, company):
+    return requests.post(
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
+        data={
+            "from": "Tu Nombre <tu_email@tu_dominio.com>",
+            "to": "Francisco Furey <franciscofurey@gmail.com>",
+            "subject": "Nuevo usuario creado",
+            "text": f"Se ha creado un nuevo usuario.\nEmail: {email}\nUsername: {username}\nCompany: {company}"
+        }
+    )
+
 
 db_connection_string = os.getenv("DATABASE_URL")
 
@@ -59,7 +76,7 @@ class Proveedor(Base):
     nombre = Column(String(100))
     user_id = Column(Integer, ForeignKey('users.id'))
 
-def create_user(username, password):
+def create_user(username, password, company):
     session = Session()  # Crea una nueva sesión
     # Crear un cliente S3
     s3_client = boto3.client('s3', region_name='sa-east-1')
@@ -72,7 +89,7 @@ def create_user(username, password):
 
     try:
         hashed_password = generate_password_hash(password, method='sha256')
-        new_user = User(email=username, password=hashed_password)
+        new_user = User(email=username, password=hashed_password, company=company)
         session.add(new_user)
         session.commit()
 
@@ -87,7 +104,9 @@ def create_user(username, password):
         # Crear el archivo en GitHub
         repo.create_file(user_script_file_path, f"Creando archivo para el usuario {new_user.id}", user_script_file_content)
 
-       
+        # Aquí reemplazas la parte del correo
+        enviar_correo_mailgun(new_user.email, new_user.email.split('@')[0], company)
+
 
     except SQLAlchemyError as e:
         session.rollback()  # Si hay algún error, deshaz los cambios en la base de datos

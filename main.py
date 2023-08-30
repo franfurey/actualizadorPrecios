@@ -1,14 +1,14 @@
 # main.py
 # Importa las bibliotecas necesarias
 import os
-from database import User, Session
+from database import User, Session, create_user
 from sqlalchemy.exc import SQLAlchemyError
 from routes.login import login as login_view
 from routes.dashboard import dashboard_blueprint
 from routes.proveedor import proveedor_blueprint
 from routes.dashboard import dashboard as dashboard_view
 from routes.proveedor import proveedor as proveedor_view
-from flask import Flask, redirect, session, url_for, render_template
+from flask import Flask, redirect, session, url_for, render_template, request
 from flask_login import LoginManager, login_required, logout_user, login_user, current_user
 
 app = Flask(__name__)
@@ -99,6 +99,28 @@ def admin_dashboard():
     session.close()  # Cierra la sesión
 
     return render_template('admin_dashboard.html', users=users)
+
+@app.route('/create_account', methods=['GET', 'POST'])
+def create_account():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        company = request.form.get('company')
+        create_user(email, password, company)
+        
+        # Aquí puedes cargar el usuario recién creado para hacer login
+        session = Session()
+        user = session.query(User).filter_by(email=email).first()
+        
+        if user:
+            login_user(user)
+            return redirect(url_for('dashboard'))  # Redirigir al dashboard
+        else:
+            return "Algo salió mal al crear el usuario"
+
+    return render_template('create_account.html')
+
+
 
 
 # Define la ruta para cerrar la sesión del usuario
