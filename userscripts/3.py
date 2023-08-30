@@ -235,57 +235,6 @@ def combine_dataframes_sku(df1, df2):
 
 ########################################################################################################################################################################
 
-# def generate_report_and_pdf(df_final, path, proveedor_nombre, filename="report.pdf"):
-#     total_rows = int(len(df_final))
-#     matched_products = int(len(df_final[df_final['similarity'] >= 94]))
-
-#     if 'SKU_proveedor' in df_final.columns:
-#         missing_df1_rows = int(len(df_final[df_final['SKU_proveedor'].isnull()]))
-#     else:
-#         missing_df1_rows = 0  # O cualquier valor predeterminado que desees usar
-#     missing_df2_rows = int(len(df_final[df_final['SKU'].isnull()]))
-#     total_products_our_db = int(df_final['SKU'].count())
-#     total_products_supplier_db = int(df_final['SKU_proveedor'].count())
-
-#     report_data = {
-#         "total_rows": total_rows,
-#         "matched_products": matched_products,
-#         "missing_df1_rows": missing_df1_rows,
-#         "missing_df2_rows": missing_df2_rows,
-#         "total_products_our_db": total_products_our_db,
-#         "total_products_supplier_db": total_products_supplier_db
-#     }
-
-#     print("Datos del informe antes de escribir en el archivo JSON:", report_data)
-#     with open(os.path.join(path, "report_data.json"), "w") as json_file:
-#         json.dump(report_data, json_file)
-
-#     pdf_path = os.path.join(path, filename)
-#     c = canvas.Canvas(pdf_path, pagesize=letter)
-
-#     # Título
-#     c.setFont("Helvetica-Bold", 18)
-#     c.drawString(30, 800, "Informe de Productos")
-
-#     # Logo (si tienes un archivo de imagen, puedes incluirlo aquí)
-#     # c.drawImage("/path/to/logo.jpg", 30, 820, width=100, height=50)
-
-#     c.setFont("Helvetica", 12)
-
-#     # Nuevas líneas para los totales, ajustadas para comenzar más a la izquierda y dejar espacio en la parte superior
-#     c.drawString(30, 770, f"Total de productos en nuestra base de datos: {total_products_our_db}")
-#     c.drawString(30, 750, f"Total de productos en el Excel del {proveedor_nombre}: {total_products_supplier_db}")
-#     c.drawString(30, 730, f"Total de productos encontrados en ambas listas: {matched_products}")
-#     c.drawString(30, 710, f"Total de productos que están en nuestra base de datos pero no en la de {proveedor_nombre}: {missing_df1_rows}")
-#     c.drawString(30, 690, f"Productos nuevos incorporados por {proveedor_nombre} que no tenemos en nuestra base de datos: {missing_df2_rows}")
-
-#     c.save()
-#     print(f"Archivo de informe guardado como {pdf_path}")
-
-#     return report_data
-
-########################################################################################################################################################################
-
 def seleccionar_columnas(df_final, proveedor, path):
     def eliminar_filas_vacias(df):
         return df.dropna(how='all')
@@ -468,3 +417,55 @@ def process_files(current_user_id, proveedor, path):
         adjust_columns_and_center_text(path)
     else:
         print("No se encontraron los archivos combinados y de proveedor.")
+
+
+########################################################################################################################################################################
+
+# def generate_report_and_pdf(df_final, path, proveedor_nombre, filename="report.pdf"):
+#     total_rows = int(len(df_final))
+#     matched_products = int(len(df_final[df_final['similarity'] >= 94]))
+
+#     if 'SKU_proveedor' in df_final.columns:
+#         missing_df1_rows = int(len(df_final[df_final['SKU_proveedor'].isnull()]))
+#     else:
+#         missing_df1_rows = 0  # O cualquier valor predeterminado que desees usar
+#     missing_df2_rows = int(len(df_final[df_final['SKU'].isnull()]))
+#     total_products_our_db = int(df_final['SKU'].count())
+#     total_products_supplier_db = int(df_final['SKU_proveedor'].count())
+
+#     report_data = {
+#         "total_rows": total_rows,
+#         "matched_products": matched_products,
+#         "missing_df1_rows": missing_df1_rows,
+#         "missing_df2_rows": missing_df2_rows,
+#         "total_products_our_db": total_products_our_db,
+#         "total_products_supplier_db": total_products_supplier_db
+#     }
+
+#     print("Datos del informe antes de escribir en el archivo JSON:", report_data)
+#     with open(os.path.join(path, "report_data.json"), "w") as json_file:
+#         json.dump(report_data, json_file)
+
+#     pdf_path = os.path.join(path, filename)
+#     c = canvas.Canvas(pdf_path, pagesize=letter)
+
+#     # Título
+#     c.setFont("Helvetica-Bold", 18)
+#     c.drawString(30, 800, "Informe de Productos")
+
+#     # Logo (si tienes un archivo de imagen, puedes incluirlo aquí)
+#     # c.drawImage("/path/to/logo.jpg", 30, 820, width=100, height=50)
+
+#     c.setFont("Helvetica", 12)
+
+#     # Nuevas líneas para los totales, ajustadas para comenzar más a la izquierda y dejar espacio en la parte superior
+#     c.drawString(30, 770, f"Total de productos en nuestra base de datos: {total_products_our_db}")
+#     c.drawString(30, 750, f"Total de productos en el Excel del {proveedor_nombre}: {total_products_supplier_db}")
+#     c.drawString(30, 730, f"Total de productos encontrados en ambas listas: {matched_products}")
+#     c.drawString(30, 710, f"Total de productos que están en nuestra base de datos pero no en la de {proveedor_nombre}: {missing_df1_rows}")
+#     c.drawString(30, 690, f"Productos nuevos incorporados por {proveedor_nombre} que no tenemos en nuestra base de datos: {missing_df2_rows}")
+
+#     c.save()
+#     print(f"Archivo de informe guardado como {pdf_path}")
+
+#     return report_data

@@ -91,6 +91,8 @@ def add_non_matching_rows(df_result, df2):
     df_result = pd.concat([df_result, pd.DataFrame(rows_list)], ignore_index=True)
     return df_result
 
+########################################################################################################################################################################
+
 brand_keywords = {
     'Algabo': ['alg', 'alga', 'algabo'],
     'Tablada': ['tablada'],
