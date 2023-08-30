@@ -14,6 +14,7 @@ from routes.s3_utils import upload_file_to_s3, delete_object_from_s3, ensure_dir
 
 s3 = boto3.client('s3', region_name='sa-east-1')  # Asegúrate de ajustar la región según corresponda
 
+
 # Crea una "blueprint" para las rutas del proveedor
 proveedor_blueprint = Blueprint('proveedor_blueprint', __name__)
 
@@ -176,13 +177,13 @@ def delete(proveedor_id, date):
 @login_required
 def rename(proveedor_id, date):
     print(f"Procesando rename para proveedor: {proveedor_id}, fecha: {date}")
-    session = Session()  # Crea una nueva sesión
+    session = Session()
     try:
         proveedor = session.query(Proveedor).get(proveedor_id)
+        assert proveedor is not None, "Proveedor no encontrado"
 
         object_key_prefix = f'clients/{current_user.id}/{proveedor_id}/{date}'
         local_directory = f'/tmp/clients/{current_user.id}/{proveedor_id}/{date}'
-        print(f"Descargando archivos desde {object_key_prefix} a {local_directory}")
         download_files_from_folder(bucket_name="proveesync", folder_path=object_key_prefix, local_path=local_directory)
 
         downloaded_files = os.listdir(local_directory)
@@ -192,10 +193,8 @@ def rename(proveedor_id, date):
         module = import_module(module_name)
         print(f"Módulo importado: {module}")
 
-        print("Llamando a process_files")
         module.process_files(current_user.id, proveedor, local_directory)
 
-        # Aquí es donde agregamos la llamada para subir los archivos procesados
         print(f"Subiendo archivos procesados desde {local_directory} a {object_key_prefix}")
         upload_files_to_folder(bucket_name="proveesync", folder_path=object_key_prefix, local_path=local_directory)
 

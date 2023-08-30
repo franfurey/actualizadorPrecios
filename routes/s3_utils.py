@@ -63,7 +63,7 @@ def list_folders_in_directory(directory_path, bucket_name="proveesync"):
                 # Intenta convertir el nombre de la carpeta a una fecha, si eso es lo que esperas
                 datetime.strptime(folder_name, '%d-%m-%Y')
             except ValueError:
-                print(f"Error de formato en la fecha: {folder_name}")
+                # print(f"Error de formato en la fecha: {folder_name}")
                 continue  # Salta esta iteración y continua con la próxima
             
             folders.append(folder_name)
@@ -76,13 +76,13 @@ def ensure_directory_exists_in_s3(directory_path, bucket_name="proveesync"):
     s3_client.put_object(Bucket=bucket_name, Key=directory_key)
 
 def download_files_from_folder(bucket_name, folder_path, local_path):
-    print(f"Descargando archivos desde el folder {folder_path} en el bucket {bucket_name} a {local_path}")
+    # print(f"Descargando archivos desde el folder {folder_path} en el bucket {bucket_name} a {local_path}")
     files = list_files_in_folder(bucket_name=bucket_name, folder_path=folder_path)
     
     # Filtrar solo los objetos que no sean directorios
     files = [f for f in files if not f.endswith('/')]
 
-    print(f"Archivos encontrados en el folder: {files}")
+    # print(f"Archivos encontrados en el folder: {files}")
 
     # Asegurarse de que el directorio local exista
     if not os.path.exists(local_path):
@@ -91,17 +91,17 @@ def download_files_from_folder(bucket_name, folder_path, local_path):
     # Descargar cada archivo en el directorio local
     for file_key in files:
         local_file_path = os.path.join(local_path, os.path.basename(file_key))
-        print(f"Descargando archivo {file_key} a {local_file_path}")
+        # print(f"Descargando archivo {file_key} a {local_file_path}")
         download_file_from_s3(file_path=local_file_path, object_name=file_key, bucket_name=bucket_name)
 
 
 def upload_files_to_folder(bucket_name, folder_path, local_path):
-    print(f"Subiendo archivos desde el folder local {local_path} al bucket {bucket_name} en la ruta {folder_path}")
+    # print(f"Subiendo archivos desde el folder local {local_path} al bucket {bucket_name} en la ruta {folder_path}")
     files = os.listdir(local_path)
 
     # Subir cada archivo en el directorio local a S3
     for file_name in files:
         local_file_path = os.path.join(local_path, file_name)
         object_key = os.path.join(folder_path, file_name)
-        print(f"Subiendo archivo {local_file_path} a {object_key}")
+        # print(f"Subiendo archivo {local_file_path} a {object_key}")
         upload_file_to_s3(file_obj=local_file_path, object_name=object_key, bucket_name=bucket_name)

@@ -1,42 +1,55 @@
 # userscripts/3.py
 # Este es el archivo de fran@soycanal.com.ar
-from reportlab.lib.pagesizes import letter
-from fuzzywuzzy import fuzz
-from reportlab.pdfgen import canvas
-from openpyxl import load_workbook
-import importlib
 import os
-import pandas as pd
-import openpyxl as px
-import traceback
 import json
 import openpyxl
+import importlib
+import traceback
+import pandas as pd
+from fuzzywuzzy import fuzz
+from openpyxl import load_workbook
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
 
 def rename_files(current_user_id, proveedor, path):
     files = os.listdir(path)
     for file in files:
-        if file.endswith('.csv') or file.endswith('.xls') or file.endswith('.xlsx'):
+        if file.endswith('.csv'):
+            new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.csv"
+        elif file.endswith('.xls') or file.endswith('.xlsx'):
             new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.xlsx"
-            os.rename(os.path.join(path, file), os.path.join(path, new_name))
-            print(f"Archivo renombrado a: {new_name}")
+        os.rename(os.path.join(path, file), os.path.join(path, new_name))
+        print(f"Archivo renombrado a: {new_name}")
+
 
 ########################################################################################################################################################################            
 
 def leer_archivo(filename, skiprows=0):
+    if not os.path.isfile(filename):
+        print("El archivo no existe")
+        return None, None
+
     try:
         df = None
+        new_filename = filename  # Para no perder el nombre original en caso de que sea CSV
+        
         if filename.endswith('.csv'):
-            df = pd.read_csv(filename, encoding='ISO-8859-1', sep=';')
-        elif filename.endswith('.xls') or filename.endswith('.xlsx'):
-            df = pd.read_excel(filename, skiprows=skiprows)
+            df = pd.read_csv(filename, encoding='ISO-8859-1', sep=';', skiprows=skiprows)
+        elif filename.endswith('.xls'):
+            df = pd.read_excel(filename, skiprows=skiprows, engine='xlrd')
+        elif filename.endswith('.xlsx'):
+            df = pd.read_excel(filename, skiprows=skiprows, engine='openpyxl')
 
         if df is not None:
-            new_filename = filename.split('.')[0] + '.xlsx'
-            df.to_excel(new_filename, index=False)
-            if filename != new_filename:
-                os.remove(filename)
-            
-            # Elimina columnas con 'None' como nombre
+            if filename.endswith('.xls'):
+                new_filename = filename.split('.')[0] + '.xlsx'
+                df.to_excel(new_filename, index=False, engine='openpyxl')
+                if filename != new_filename:
+                    os.remove(filename)
+
+
+            # Eliminar columnas con 'None' como nombre
             df.drop(columns=[col for col in df.columns if col is None], inplace=True)
             
         return df, new_filename
@@ -46,9 +59,17 @@ def leer_archivo(filename, skiprows=0):
         traceback.print_exc()
         return None, None
 
+
+
+
 ########################################################################################################################################################################            
 
 def eliminar_formas_no_imagenes(filename):
+    ext = os.path.splitext(filename)[1]
+    if ext not in ['.xlsx', '.xlsm']:
+        print(f"Omitiendo {filename}, ya que no es un archivo Excel soportado.")
+        return
+    
     wb = openpyxl.load_workbook(filename)
     ws = wb.active
     try:
@@ -59,6 +80,7 @@ def eliminar_formas_no_imagenes(filename):
         for image in ws._images:
             ws.remove_image(image)
     wb.save(filename)
+
 
 ########################################################################################################################################################################
 
@@ -139,9 +161,9 @@ def seleccionar_columnas(df_final, proveedor, path):
     file_name = f"{proveedor.nombre}.xlsx"
     writer = pd.ExcelWriter(os.path.join(path, file_name))
 
-    columnas_hoja1 = ["Codigo_proveedor", "Codigo", "SKU", "Nombre", "Stock Act.", "Stock Max.", "Pto. Repos.", "Costo", "Precio"]
-    columnas_hoja2 = ["Codigo", "Codigo_segun_Proveedor", "SKU", "Nombre", "Stock Act.", "Stock Max.", "Pto. Repos.", "Precio"]
-    columnas_hoja3 = ["Codigo_proveedor", "SKU_proveedor", "Nombre_proveedor", "Costo"]
+    columnas_hoja1 = ["Identificador de URL", "Nombre", "SKU_proveedor", "Código de barras", 'Costo', "Costo_proveedor", "Precio"]
+    columnas_hoja2 = ["Identificador de URL", "Nombre", "Código de barras", "Precio"]
+    columnas_hoja3 = ["SKU_proveedor", "Nombre_proveedor",'Código de barras_proveedor', "Costo_proveedor"]
 
     columnas_hoja1 = [col for col in columnas_hoja1 if col in df_final.columns]
     columnas_hoja2 = [col for col in columnas_hoja2 if col in df_final.columns]
@@ -150,28 +172,18 @@ def seleccionar_columnas(df_final, proveedor, path):
     df_hoja1 = eliminar_filas_vacias(df_final[df_final['similarity'] > 50][columnas_hoja1])
     df_hoja1.to_excel(writer, sheet_name='Productos en Común', index=False)
 
-    if 'SKU_proveedor' in df_final.columns:
-        filter_condition_2 = df_final['SKU_proveedor'].isnull()
-    elif 'Codigo_proveedor' in df_final.columns:
-        filter_condition_2 = df_final['Codigo_proveedor'].isnull()
-    else:
-        filter_condition_2 = False
-
+    # Para la Hoja 2, usamos directamente la columna 'SKU_proveedor'
+    filter_condition_2 = df_final['Código de barras_proveedor'].isnull()
     df_hoja2 = eliminar_filas_vacias(df_final[filter_condition_2][columnas_hoja2])
-    df_hoja2 = df_hoja2.sort_values(by="Stock Act.", ascending=False)
     df_hoja2.to_excel(writer, sheet_name='Productos Descontinuados', index=False)
 
-    if 'SKU' in df_final.columns:
-        filter_condition_3 = df_final['SKU'].isnull()
-    elif 'Codigo' in df_final.columns:
-        filter_condition_3 = df_final['Codigo'].isnull()
-    else:
-        filter_condition_3 = False
-
+    # Para la Hoja 3, usamos directamente la columna 'Código de barras'
+    filter_condition_3 = df_final['Código de barras'].isnull()
     df_hoja3 = eliminar_filas_vacias(df_final[filter_condition_3][columnas_hoja3])
     df_hoja3.to_excel(writer, sheet_name='Nuevos Productos', index=False)
 
     writer.save()
+
 
     
 #
@@ -187,7 +199,7 @@ def adjust_columns_and_center_text(path):
                 print(f"Procesando archivo: {file}")
                 try:
                     # Abrimos el archivo usando openpyxl
-                    workbook = px.load_workbook(os.path.join(path, file))
+                    workbook = openpyxl.load_workbook(os.path.join(path, file))
 
                     # Iteramos a través de todas las hojas en el archivo
                     for sheet_name in workbook.sheetnames:
@@ -203,7 +215,7 @@ def adjust_columns_and_center_text(path):
                                 try:
                                     max_length = max(max_length, len(str(cell.value)))
                                     # Centramos el texto en la celda
-                                    cell.alignment = px.styles.Alignment(horizontal='center')
+                                    cell.alignment = openpyxl.styles.Alignment(horizontal='center')
                                 except:
                                     print("Error al ajustar celda:", cell)
                                     pass
@@ -224,55 +236,50 @@ def adjust_columns_and_center_text(path):
 
 #     
 def process_files(current_user_id, proveedor, path):
-    # 1. Renombrar archivos
+    print("Iniciando process_files 24.py")
     rename_files(current_user_id, proveedor, path)
-    # Inicializar los dataframes como None
-    df_canal = None
-    df_proveedor = None
-    # Leer y procesar los archivos
+    df_canal, df_proveedor = None, None
     files = os.listdir(path)
+    
+    mpn_value = proveedor.nombre  # Asumiendo que "nombre" es el atributo que guarda el nombre del proveedor
+    print('Proveedor: ', mpn_value)
     print(f"Lista de archivos después de renombrar: {files}")
 
     for file in files:
-        if file.endswith('.xls') or file.endswith('.xlsx'):
+        ext = os.path.splitext(file)[1]
+        if ext in ['.xls', '.xlsx', '.csv']:
             print(f"Procesando archivo: {file}")
             try:
-                if 'stock' in file or 'precios' in file:
-                    df, filename = leer_archivo(os.path.join(path, file), skiprows=0, sku_as_str='precios' in file)
-                else:
-                    df, filename = leer_archivo(os.path.join(path, file))
-                # 3. Eliminar formas no imágenes
+                df, filename = leer_archivo(os.path.join(path, file))
+
                 eliminar_formas_no_imagenes(filename)
-                # 4. Filtrar y reformatear el DataFrame
-                if 'canal.xlsx' in os.path.basename(filename):
-                    df_canal = filtrar_y_reformatear_canal(df)
+
+                if 'canal.csv' in os.path.basename(filename):
+                    print(f"DataFrame antes de filtrar_y_reformatear_canal para el archivo {file}:")
+                    print(df.head(10))
+                    df_canal = filtrar_y_reformatear_canal(df, mpn_value=mpn_value)
+                    print(f"DataFrame después de filtrar_y_reformatear_canal para el archivo {file}:")
+                    print(df_canal.head(10))
                     df_canal.to_excel(filename, index=False)
-                # Procesar archivos de proveedor
-                if '-proveedor.xlsx' in os.path.basename(filename):
-                    # Importar el script del proveedor
+
+                if 'proveedor.xlsx' in os.path.basename(filename):
                     script_proveedor = importlib.import_module(f'proveedores.{current_user_id}.{proveedor.id}')
-                    # Añade la impresión del DataFrame aquí antes de la llamada a process_proveedor_file
                     print(f"DataFrame antes de process_proveedor_file para el archivo {file}:")
                     print(df.head(10))
-                    # Llamar a la función process_proveedor_file en el script del proveedor
-                    df_proveedor = script_proveedor.process_proveedor_file(df)  # Cambiado a df_proveedor
-                    # Añade la impresión del DataFrame aquí
+                    df_proveedor = script_proveedor.process_proveedor_file(df)
                     print(f"DataFrame después de process_proveedor_file para el archivo {file}:")
                     print(df_proveedor.head(10))
-                    df_proveedor.to_excel(filename, index=False)  # Cambiado a df_proveedor
+                    df_proveedor.to_excel(filename, index=False)
             except Exception as e:
-                print(f"Error al procesar el archivo {file}:")
+                print(f"Error al procesar el archivo {file}: {e}")
                 traceback.print_exc()
 
-    # Combinar el dataframe combinado con el dataframe de proveedor
     if df_canal is not None and df_proveedor is not None:
-        
         df_final = combine_dataframes(df_canal, df_proveedor)
-        # Llamar a la función para generar el informe
-        # generate_report_and_pdf(df_final, path, proveedor.nombre)
         df_final.to_excel(os.path.join(path, "final.xlsx"), index=False)
-        # Crear un nuevo archivo Excel con las hojas y columnas seleccionadas
         seleccionar_columnas(df_final, proveedor, path)
         adjust_columns_and_center_text(path)
+    if df_canal is not None and not df_canal.empty and df_proveedor is not None and not df_proveedor.empty:
+        print("DataFrames combinados exitosamente.")
     else:
         print("No se encontraron los archivos combinados y de proveedor.")

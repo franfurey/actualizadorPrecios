@@ -3,6 +3,7 @@
 
 def process_proveedor_file(df):
     """Filtrar y reformatear un DataFrame de Excel para Upalala"""
+    print('formateando UPALALA 30.py')
     df = df.drop(index=range(0))
     df = df.rename(columns={
         df.columns[2]: 'SKU',
@@ -11,10 +12,6 @@ def process_proveedor_file(df):
         df.columns[4]: 'Costo'
     })
     df = df[['SKU', 'Código de barras', 'Nombre', 'Costo']]
-
-    # Continua el proceso de limpieza...
-    # ...
-    # Eliminar filas sin un código asociado
     columna = df.iloc[:, 1]
     df = df.dropna(subset=[df.columns[1]])
     df['Código de barras'] = df['Código de barras'].astype(int).astype(str)
