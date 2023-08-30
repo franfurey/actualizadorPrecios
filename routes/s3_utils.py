@@ -2,6 +2,7 @@
 import os
 import boto3
 from io import BytesIO
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv('db.env')
@@ -46,17 +47,29 @@ def delete_object_from_s3(object_key, bucket_name="proveesync"):
     # Eliminar el objeto en sí
     s3_client.delete_object(Bucket=bucket_name, Key=object_key)
 
+
 def list_folders_in_directory(directory_path, bucket_name="proveesync"):
-    # Asegúrate de que directory_path termine con una barra inclinada
     if not directory_path.endswith('/'):
         directory_path += '/'
 
     result = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=directory_path, Delimiter='/')
     folders = []
+
     for item in result.get('CommonPrefixes', []):
         folder_name = item['Prefix'].replace(directory_path, '', 1).rstrip('/')
-        folders.append(folder_name)
+
+        if folder_name:  # Verifica que no sea una cadena vacía
+            try:
+                # Intenta convertir el nombre de la carpeta a una fecha, si eso es lo que esperas
+                datetime.strptime(folder_name, '%d-%m-%Y')
+            except ValueError:
+                print(f"Error de formato en la fecha: {folder_name}")
+                continue  # Salta esta iteración y continua con la próxima
+            
+            folders.append(folder_name)
+            
     return folders
+
 
 def ensure_directory_exists_in_s3(directory_path, bucket_name="proveesync"):
     directory_key = f'{directory_path}/'
