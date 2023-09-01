@@ -165,8 +165,6 @@ def agregar_porcentaje_aumento(df):
     
     return df
 
-
-
 #
 
 def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
@@ -225,6 +223,30 @@ def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
     writer.save()
     return df_hoja1, df_hoja2, df_hoja3
 
+#
+
+def generar_csv(path, proveedor):
+    # Construye el nombre del archivo Excel y del archivo CSV
+    file_name_xlsx = f"{proveedor.nombre}.xlsx"
+    file_name_csv = f"{proveedor.nombre}.csv"
+    
+    # Define la ruta completa al archivo Excel
+    full_path_xlsx = os.path.join(path, file_name_xlsx)
+    
+    # Define la ruta completa donde se guardará el archivo CSV
+    full_path_csv = os.path.join(path, file_name_csv)
+    
+    # Lee la hoja 'Productos en Común' del archivo Excel
+    df = pd.read_excel(full_path_xlsx, sheet_name='Productos en Común')
+    
+    # Selecciona las columnas deseadas
+    df_selected = df[["Identificador de URL", "Costo_proveedor", "Precios_Nuevos"]]
+    
+    # Renombra las columnas
+    df_selected.rename(columns={"Costo_proveedor": "Costo", "Precios_Nuevos": "Precio"}, inplace=True)
+    
+    # Guarda el DataFrame en un archivo CSV
+    df_selected.to_csv(full_path_csv, index=False)
 
 # 
     
@@ -268,8 +290,7 @@ def process_files(current_user_id, proveedor, path, porcentaje_aumento):
     if df_canal is not None and df_proveedor is not None:
         df_final = combine_dataframes(df_canal, df_proveedor)
         df_final.to_excel(os.path.join(path, "final.xlsx"), index=False)
-        df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento)  # Guardamos los tres dataframes
+        df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento)
         adjust_columns_and_center_text(path)
-
-        # Pasamos los dataframes como argumentos adicionales
         generate_report_and_pdf(df_final, path, proveedor.nombre, df_hoja1, df_hoja2, df_hoja3)
+        generar_csv(path, proveedor)
