@@ -30,6 +30,10 @@ def upload_file_to_s3(file_obj, object_name, bucket_name="proveesync"):
 def download_file_from_s3(file_path, object_name, bucket_name="proveesync"):
     s3_client.download_file(bucket_name, object_name, file_path)
 
+def download_file_from_s3_json(bucket_name, object_name):
+    s3_object = s3_client.get_object(Bucket=bucket_name, Key=object_name)
+    return s3_object['Body'].read().decode('utf-8')
+
 def list_files_in_folder(bucket_name="proveesync", folder_path=""):
     result = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder_path)
     files = []

@@ -10,7 +10,7 @@ from database import Proveedor, Session
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 from flask import Blueprint, Response, request, render_template, flash, redirect, url_for
-from routes.s3_utils import upload_file_to_s3, delete_object_from_s3, ensure_directory_exists_in_s3, list_folders_in_directory, list_files_in_folder, download_file_from_s3, download_files_from_folder, upload_files_to_folder
+from routes.s3_utils import upload_file_to_s3, delete_object_from_s3, ensure_directory_exists_in_s3, list_folders_in_directory, list_files_in_folder, download_file_from_s3, download_files_from_folder, upload_files_to_folder, download_file_from_s3_json
 
 s3 = boto3.client('s3', region_name='sa-east-1')  # Asegúrate de ajustar la región según corresponda
 
@@ -126,11 +126,14 @@ def proveedor_files(proveedor_id, date):
         report_data_path = os.path.join(directory, "report_data.json")
         report_data = {}
 
+        # En tu bloque try
         try:
-            report_data_content = download_file_from_s3(report_data_path, bucket_name="proveesync")
+            report_data_content = download_file_from_s3_json(bucket_name="proveesync", object_name=report_data_path)
             report_data = json.loads(report_data_content)
-        except Exception:
-            pass
+            print("Report Data:", report_data)  
+        except Exception as e:
+            print("Error al cargar el archivo JSON:", e)
+
 
         result = render_template('proveedor_files.html', proveedor=proveedor, date=date, files=files_to_show, report_data=report_data)
         session.close()
@@ -202,5 +205,12 @@ def rename(proveedor_id, date):
         raise
     finally:
         session.close()
+        # Eliminar los archivos temporales
+        for file in os.listdir(local_directory):
+            file_path = os.path.join(local_directory, file)
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"No se pudo eliminar {file_path}: {e}")
 
     return redirect(url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor_id, date=date))

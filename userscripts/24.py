@@ -1,28 +1,33 @@
-# userscripts/3.py
+# userscripts/24.py
 # Este es el archivo de fran@soycanal.com.ar
 import os
-import json
-import openpyxl
 import importlib
 import traceback
 import pandas as pd
 from fuzzywuzzy import fuzz
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from .common_utils import adjust_columns_and_center_text, eliminar_formas_no_imagenes
+from .common_utils import adjust_columns_and_center_text, eliminar_formas_no_imagenes, generate_report_and_pdf
+
+#
 
 def rename_files(current_user_id, proveedor, path):
     files = os.listdir(path)
+    print("Archivos en el directorio:", files)
+    
     for file in files:
-        if file.endswith('.csv'):
-            new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.csv"
-        elif file.endswith('.xls') or file.endswith('.xlsx'):
-            new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.xlsx"
-        os.rename(os.path.join(path, file), os.path.join(path, new_name))
-        print(f"Archivo renombrado a: {new_name}")
+        if os.path.isfile(os.path.join(path, file)):  # Añadido para verificar que es un archivo
+            new_name = ""
+            
+            if file.endswith('.csv'):
+                new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.csv"
+            elif file.endswith('.xls') or file.endswith('.xlsx'):
+                new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.xlsx"
+            
+            # Verificar si el archivo ya ha sido renombrado
+            if new_name and new_name != file:  # Modificado para asegurarse de que new_name no esté vacío
+                os.rename(os.path.join(path, file), os.path.join(path, new_name))
+                print(f"Archivo renombrado a: {new_name}")
 
-
-########################################################################################################################################################################            
+#
 
 def leer_archivo(filename, skiprows=0):
     if not os.path.isfile(filename):
@@ -159,6 +164,7 @@ def seleccionar_columnas(df_final, proveedor, path):
     df_hoja3.to_excel(writer, sheet_name='Nuevos Productos', index=False)
 
     writer.save()
+    return df_hoja1, df_hoja2, df_hoja3  # Nueva línea al final para devolver los dataframes
 
 #     
 def process_files(current_user_id, proveedor, path):
@@ -186,8 +192,7 @@ def process_files(current_user_id, proveedor, path):
                     df_canal = filtrar_y_reformatear_canal(df, mpn_value=mpn_value)
                     print(f"DataFrame después de filtrar_y_reformatear_canal para el archivo {file}:")
                     print(df_canal.head(10))
-                    df_canal.to_excel(filename, index=False)
-
+                    df_canal.to_csv(filename, index=False)
                 if 'proveedor.xlsx' in os.path.basename(filename):
                     script_proveedor = importlib.import_module(f'proveedores.{current_user_id}.{proveedor.id}')
                     print(f"DataFrame antes de process_proveedor_file para el archivo {file}:")
@@ -203,9 +208,8 @@ def process_files(current_user_id, proveedor, path):
     if df_canal is not None and df_proveedor is not None:
         df_final = combine_dataframes(df_canal, df_proveedor)
         df_final.to_excel(os.path.join(path, "final.xlsx"), index=False)
-        seleccionar_columnas(df_final, proveedor, path)
+        df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path)  # Guardamos los tres dataframes
         adjust_columns_and_center_text(path)
-    if df_canal is not None and not df_canal.empty and df_proveedor is not None and not df_proveedor.empty:
-        print("DataFrames combinados exitosamente.")
-    else:
-        print("No se encontraron los archivos combinados y de proveedor.")
+
+        # Pasamos los dataframes como argumentos adicionales
+        generate_report_and_pdf(df_final, path, proveedor.nombre, df_hoja1, df_hoja2, df_hoja3)
