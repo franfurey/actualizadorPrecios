@@ -3,6 +3,7 @@
 import os
 import importlib
 import traceback
+import numpy as np
 import pandas as pd
 from fuzzywuzzy import fuzz
 from .common_utils import adjust_columns_and_center_text, eliminar_formas_no_imagenes, generate_report_and_pdf
@@ -133,46 +134,105 @@ def combine_dataframes(df1, df2):
     result_df = pd.DataFrame(rows_list)
     return result_df
 
-########################################################################################################################################################################
+#
 
-def seleccionar_columnas(df_final, proveedor, path):
+def agregar_porcentaje_aumento(df):
+    # Convierte toda la columna a cadenas primero para evitar errores con el método `.str`
+    df['Costo'] = df['Costo'].astype(str)
+    df['Costo_proveedor'] = df['Costo_proveedor'].astype(str)
+    
+    # Reemplazamos las comas y convertimos a numérico
+    df['Costo'] = pd.to_numeric(df['Costo'].str.replace(',', ''), errors='coerce')
+    df['Costo_proveedor'] = pd.to_numeric(df['Costo_proveedor'].str.replace(',', ''), errors='coerce')
+
+    # Reemplazamos los NaN por 0 (o cualquier otro valor que consideres apropiado)
+    df['Costo'].fillna(0, inplace=True)
+    df['Costo_proveedor'].fillna(0, inplace=True)
+
+    print("Valores únicos en 'Costo':", df['Costo'].unique())
+    print("Valores únicos en 'Costo_proveedor':", df['Costo_proveedor'].unique())
+    
+    # Calculamos el porcentaje de aumento
+    df['Porcentaje_Aumento'] = ((df['Costo_proveedor'] - df['Costo']) / df['Costo']) * 100
+    # Lidiar con infinitos después de la división (si Costo es 0)
+    df['Porcentaje_Aumento'].replace([np.inf, -np.inf], np.nan, inplace=True)
+    # Convertimos a entero
+    df['Porcentaje_Aumento'] = df['Porcentaje_Aumento'].astype(int)
+    
+    # Ordenamos el DataFrame de forma descendente
+    df.sort_values('Porcentaje_Aumento', ascending=False, inplace=True)
+
+    
+    return df
+
+
+
+#
+
+def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
     def eliminar_filas_vacias(df):
         return df.dropna(how='all')
-
+    
+    print("Tipos de datos antes de la operación:")
+    print(df_final.dtypes)
+    
     file_name = f"{proveedor.nombre}.xlsx"
     writer = pd.ExcelWriter(os.path.join(path, file_name))
-
+    
     columnas_hoja1 = ["Identificador de URL", "Nombre", "SKU_proveedor", "Código de barras", 'Costo', "Costo_proveedor", "Precio"]
     columnas_hoja2 = ["Identificador de URL", "Nombre", "Código de barras", "Precio"]
-    columnas_hoja3 = ["SKU_proveedor", "Nombre_proveedor",'Código de barras_proveedor', "Costo_proveedor"]
+    columnas_hoja3 = ["SKU_proveedor", "Nombre_proveedor", 'Código de barras_proveedor', "Costo_proveedor"]
 
     columnas_hoja1 = [col for col in columnas_hoja1 if col in df_final.columns]
     columnas_hoja2 = [col for col in columnas_hoja2 if col in df_final.columns]
     columnas_hoja3 = [col for col in columnas_hoja3 if col in df_final.columns]
-
+    
     df_hoja1 = eliminar_filas_vacias(df_final[df_final['similarity'] > 50][columnas_hoja1])
-    df_hoja1.to_excel(writer, sheet_name='Productos en Común', index=False)
+    df_hoja1 = agregar_porcentaje_aumento(df_hoja1)
+    # Actualizar los precios con el porcentaje de aumento en df_hoja1
+    if porcentaje_aumento != 0:
+        
+        # Verificar si porcentaje_aumento es None o una cadena vacía
+        if porcentaje_aumento is None or str(porcentaje_aumento).strip() == '':
+            print("Porcentaje de aumento no proporcionado, usando valor por defecto de 0")
+            factor_aumento = 1.0
+        else:
+            try:
+                print(f"Valor de porcentaje_aumento: {porcentaje_aumento}")  
+                factor_aumento = 1 + (float(porcentaje_aumento) / 100)
+                print(f"Valor de factor_aumento: {factor_aumento}")
+            except ValueError as e:
+                print(f"Error al convertir el porcentaje de aumento a float: {e}")
+                factor_aumento = 1.0  # Valor por defecto en caso de error
+        
+        df_hoja1['Costo_proveedor'] = df_hoja1['Costo_proveedor'].astype(float)
+        df_hoja1['Precios_Nuevos'] = round(df_hoja1['Costo_proveedor'] * factor_aumento).astype(int)
 
-    # Para la Hoja 2, usamos directamente la columna 'SKU_proveedor'
+
+        print("Valores de 'Precios_Nuevos' después de la multiplicación:")
+        print(df_hoja1['Precios_Nuevos'].head())
+
+    df_hoja1.to_excel(writer, sheet_name='Productos en Común', index=False)
+    
     filter_condition_2 = df_final['Código de barras_proveedor'].isnull()
     df_hoja2 = eliminar_filas_vacias(df_final[filter_condition_2][columnas_hoja2])
     df_hoja2.to_excel(writer, sheet_name='Productos Descontinuados', index=False)
 
-    # Para la Hoja 3, usamos directamente la columna 'Código de barras'
     filter_condition_3 = df_final['Código de barras'].isnull()
     df_hoja3 = eliminar_filas_vacias(df_final[filter_condition_3][columnas_hoja3])
     df_hoja3.to_excel(writer, sheet_name='Nuevos Productos', index=False)
-
+    
     writer.save()
-    return df_hoja1, df_hoja2, df_hoja3  # Nueva línea al final para devolver los dataframes
+    return df_hoja1, df_hoja2, df_hoja3
 
-#     
-def process_files(current_user_id, proveedor, path):
-    print("Iniciando process_files 24.py")
+
+# 
+    
+def process_files(current_user_id, proveedor, path, porcentaje_aumento):
     rename_files(current_user_id, proveedor, path)
     df_canal, df_proveedor = None, None
     files = os.listdir(path)
-    
+    porcentaje_aumento = porcentaje_aumento
     mpn_value = proveedor.nombre  # Asumiendo que "nombre" es el atributo que guarda el nombre del proveedor
     print('Proveedor: ', mpn_value)
     print(f"Lista de archivos después de renombrar: {files}")
@@ -208,7 +268,7 @@ def process_files(current_user_id, proveedor, path):
     if df_canal is not None and df_proveedor is not None:
         df_final = combine_dataframes(df_canal, df_proveedor)
         df_final.to_excel(os.path.join(path, "final.xlsx"), index=False)
-        df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path)  # Guardamos los tres dataframes
+        df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento)  # Guardamos los tres dataframes
         adjust_columns_and_center_text(path)
 
         # Pasamos los dataframes como argumentos adicionales

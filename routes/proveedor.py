@@ -176,6 +176,7 @@ def delete(proveedor_id, date):
 @login_required
 def rename(proveedor_id, date):
     print(f"Procesando rename para proveedor: {proveedor_id}, fecha: {date}")
+    porcentaje_aumento = request.form.get('porcentaje_aumento', 0)
     session = Session()
     try:
         proveedor = session.query(Proveedor).get(proveedor_id)
@@ -192,7 +193,7 @@ def rename(proveedor_id, date):
         module = import_module(module_name)
         print(f"Módulo importado: {module}")
 
-        module.process_files(current_user.id, proveedor, local_directory)
+        module.process_files(current_user.id, proveedor, local_directory, porcentaje_aumento)
 
         print(f"Subiendo archivos procesados desde {local_directory} a {object_key_prefix}")
         upload_files_to_folder(bucket_name="proveesync", folder_path=object_key_prefix, local_path=local_directory)
