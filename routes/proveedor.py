@@ -95,6 +95,8 @@ def proveedor_files(proveedor_id, date):
         excluded_files = ['combined.xlsx', 'final.xlsx']
         excluded_extensions = ['.json']
         allowed_extensions = ['.xlsx', '.xls', '.csv','.pdf']
+        user_uploaded_files = []
+        program_generated_files = []
 
         files_in_directory = list_files_in_folder(bucket_name="proveesync", folder_path=directory)
 
@@ -123,6 +125,12 @@ def proveedor_files(proveedor_id, date):
 
         files_to_show += filtered_files
 
+        for file in filtered_files:
+            file_name_without_extension = os.path.splitext(file)[0]
+            if file_name_without_extension.endswith("-PS"):
+                program_generated_files.append(file)
+            else:
+                user_uploaded_files.append(file)
         report_data_path = os.path.join(directory, "report_data.json")
         report_data = {}
 
@@ -135,9 +143,16 @@ def proveedor_files(proveedor_id, date):
             print("Error al cargar el archivo JSON:", e)
 
 
-        result = render_template('proveedor_files.html', proveedor=proveedor, date=date, files=files_to_show, report_data=report_data)
+        result = render_template('proveedor_files.html', 
+                         proveedor=proveedor, 
+                         date=date, 
+                         user_files=user_uploaded_files, 
+                         program_files=program_generated_files, 
+                         report_data=report_data,
+                         user = current_user)
         session.close()
         return result
+
 
 
 @proveedor_blueprint.route('/<int:proveedor_id>/<date>/<filename>', methods=['GET'])

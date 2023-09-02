@@ -174,7 +174,7 @@ def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
     print("Tipos de datos antes de la operación:")
     print(df_final.dtypes)
     
-    file_name = f"{proveedor.nombre}.xlsx"
+    file_name = f"{proveedor.nombre}-PS.xlsx"
     writer = pd.ExcelWriter(os.path.join(path, file_name))
     
     columnas_hoja1 = ["Identificador de URL", "Nombre", "SKU_proveedor", "Código de barras", 'Costo', "Costo_proveedor", "Precio"]
@@ -227,20 +227,22 @@ def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
 
 def generar_csv(path, proveedor):
     # Construye el nombre del archivo Excel y del archivo CSV
-    file_name_xlsx = f"{proveedor.nombre}.xlsx"
-    file_name_csv = f"{proveedor.nombre}.csv"
-    
+    file_name_xlsx = f"{proveedor.nombre}-PS.xlsx"
+    file_name_csv = f"{proveedor.nombre}-TiendaNube-PS.csv"
+
     # Define la ruta completa al archivo Excel
     full_path_xlsx = os.path.join(path, file_name_xlsx)
-    
     # Define la ruta completa donde se guardará el archivo CSV
     full_path_csv = os.path.join(path, file_name_csv)
     
     # Lee la hoja 'Productos en Común' del archivo Excel
     df = pd.read_excel(full_path_xlsx, sheet_name='Productos en Común')
     
+    # Filtra los productos donde Porcentaje_Aumento es diferente de 0
+    df_filtered = df[df["Porcentaje_Aumento"] != 0]
+    
     # Selecciona las columnas deseadas
-    df_selected = df[["Identificador de URL", "Costo_proveedor", "Precios_Nuevos"]]
+    df_selected = df_filtered[["Identificador de URL", "Costo_proveedor", "Precios_Nuevos"]]
     
     # Renombra las columnas
     df_selected.rename(columns={"Costo_proveedor": "Costo", "Precios_Nuevos": "Precio"}, inplace=True)

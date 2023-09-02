@@ -81,19 +81,37 @@ def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2
     missing_df1_rows = len(df_hoja2)
     missing_df2_rows = len(df_hoja3)
 
+    # Calculo de productos con aumento y su porcentaje promedio
+    increased_products = df_hoja1[df_hoja1['Porcentaje_Aumento'] > 0]
+    if increased_products.empty:
+        avg_increase_percent = 0
+    else:
+        avg_increase_percent = round(increased_products['Porcentaje_Aumento'].mean())
+
+    # Calculo de productos con descuento y su porcentaje promedio
+    discounted_products = df_hoja1[df_hoja1['Porcentaje_Aumento'] < 0]
+    if discounted_products.empty:
+        avg_discount_percent = 0
+    else:
+        avg_discount_percent = round(discounted_products['Porcentaje_Aumento'].mean())
+
+
     report_data = {
         "matched_products": matched_products,
         "total_products_supplier_db": total_rows,
         "missing_df1_rows": missing_df1_rows,
-        "missing_df2_rows": missing_df2_rows
+        "missing_df2_rows": missing_df2_rows,
+        "avg_increase_percent": avg_increase_percent,
+        "increased_products_count": len(increased_products),
+        "avg_discount_percent": avg_discount_percent,
+        "discounted_products_count": len(discounted_products)
     }
-
 
     print("Datos del informe antes de escribir en el archivo JSON:", report_data)
     with open(os.path.join(path, "report_data.json"), "w") as json_file:
         json.dump(report_data, json_file)
 
-    pdf_path = os.path.join(path, filename)
+    pdf_path = os.path.join(path, f"{proveedor_nombre}-Reporte-PS.pdf")
     c = canvas.Canvas(pdf_path, pagesize=letter)
 
     # Título
@@ -108,7 +126,13 @@ def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2
     c.drawString(30, 730, f"Total de productos encontrados en ambas listas: {matched_products}")
     c.drawString(30, 710, f"Total de productos que están en nuestra base de datos pero no en la de {proveedor_nombre}: {missing_df1_rows}")
     c.drawString(30, 690, f"Productos nuevos incorporados por {proveedor_nombre} que no tenemos en nuestra base de datos: {missing_df2_rows}")
+    if avg_increase_percent is not None and increased_products is not None:
+        c.drawString(30, 670, f"Cantidad de productos con aumento: {len(increased_products)}, con un promedio de aumento del {int(avg_increase_percent)}%")
 
+    if avg_discount_percent is not None and discounted_products is not None:
+        c.drawString(30, 650, f"Cantidad de productos con descuento: {len(discounted_products)}, con un promedio de descuento del {int(avg_discount_percent)}%")
+
+    
     c.save()
     print(f"Archivo de informe guardado como {pdf_path}")
 

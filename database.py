@@ -13,7 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from routes.s3_utils import upload_file_to_s3
 from werkzeug.security import generate_password_hash
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date
 
 load_dotenv('db.env')
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
@@ -69,12 +69,30 @@ class User(UserMixin, Base):
     def is_authenticated(self):
         return True
 
+# Crear un nuevo modelo de ProveedorFechaEstado
+class ProveedorFechaEstado(Base):
+    __tablename__ = 'proveedor_fecha_estado'
+  
+    id = Column(Integer, primary_key=True)
+    proveedor_id = Column(Integer, ForeignKey('proveedores.id'))  # Note que el nombre de la tabla es proveedores
+    date = Column(Date)
+    show_buttons = Column(Boolean, default=True)
+    porcentaje_aumento = Column(Integer, nullable=True)
+
+    # Relación con el modelo Proveedor
+    proveedor = relationship('Proveedor', back_populates='fechas_estado')
+
+# Actualizar el modelo existente de Proveedor para incluir la relación
 class Proveedor(Base):
     __tablename__ = 'proveedores'
 
     id = Column(Integer, primary_key=True)
     nombre = Column(String(100))
     user_id = Column(Integer, ForeignKey('users.id'))
+
+    # Relación uno a muchos con la tabla ProveedorFechaEstado
+    fechas_estado = relationship('ProveedorFechaEstado', back_populates='proveedor')
+
 
 def create_user(username, password, company):
     session = Session()  # Crea una nueva sesión

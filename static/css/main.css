@@ -129,3 +129,13 @@ a:hover, a:focus {
   line-height: 1.5;
   color: #555;
 }
+
+.date-text {
+  color: white;
+}
+
+.date-text:hover {
+  color: green;
+  transition: color 0.3s ease;
+}
+

@@ -25,8 +25,12 @@
       {% for date in dates %}
         <div class="card mb-3 clickable-card">
           <div class="card-body d-flex justify-content-between align-items-center">
-            <!-- Muevo el <a> aquí para que solo el texto de la fecha sea clickeable -->
-            <span><a href="{{ url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor.id, date=date) }}" class="text-decoration-none text-dark">{{ date }}</a></span>
+            <!-- Cambio aquí: he envuelto la fecha en un div con la clase 'date-card' y modificado la clase del texto a 'date-text' -->
+            <div class="card date-card">
+              <a href="{{ url_for('proveedor_blueprint.proveedor_files', proveedor_id=proveedor.id, date=date) }}" class="text-decoration-none">
+                <span class="date-text">{{ date }}</span>
+              </a>
+            </div>
             <div>
               <form action="{{ url_for('proveedor_blueprint.rename', proveedor_id=proveedor.id, date=date) }}" method="post" style="display: inline;">
                 <!-- Nuevo campo de entrada para el porcentaje de aumento -->

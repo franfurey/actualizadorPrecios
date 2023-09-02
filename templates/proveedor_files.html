@@ -4,52 +4,76 @@
 {% block title %}Proveedor - {{ date }}{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <!-- Agrega el botón de volver aquí -->
-    <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'" class="btn btn-secondary mb-3">Volver</button>
-    
-    <h1>{{ proveedor.nombre }} - {{ date }}</h1>
+<div class="container">
+  <button onclick="location.href='{{ url_for('proveedor_blueprint.proveedor', proveedor_id=proveedor.id) }}'" class="btn btn-secondary mb-3">Volver</button>
+  
+  <h1>{{ proveedor.nombre }} - {{ date }}</h1>
 
-    <div class="card p-4">
+  <div class="card p-4">
       <h2>Resumen del informe</h2>
-      
+
       {% if report_data.matched_products %}
-        <p>Total de productos en nuestra base de datos: {{ report_data.matched_products }}</p>
+      <p>Total de productos en nuestra base de datos: {{ report_data.matched_products }}</p>
       {% endif %}
-      
+
       {% if report_data.total_products_supplier_db %}
-        <p>Total de productos en la base de datos de {{ proveedor.nombre }}: {{ report_data.total_products_supplier_db }}</p>
+      <p>Total de productos en la base de datos de {{ proveedor.nombre }}: {{ report_data.total_products_supplier_db }}</p>
       {% endif %}
-      
+
       {% if report_data.matched_products %}
-        <p>Total de productos encontrados en ambas listas: {{ report_data.matched_products }}</p>
+      <p>Total de productos encontrados en ambas listas: {{ report_data.matched_products }}</p>
       {% endif %}
-      
+
       {% if report_data.missing_df1_rows %}
-        <p>Total de productos que están en nuestra base de datos pero no en la de {{ proveedor.nombre }}: {{ report_data.missing_df1_rows }}</p>
+      <p>Total de productos que están en nuestra base de datos pero no en la de {{ proveedor.nombre }}: {{ report_data.missing_df1_rows }}</p>
       {% endif %}
-      
+
       {% if report_data.missing_df2_rows %}
-        <p>Productos nuevos incorporados por {{ proveedor.nombre }} que no tenemos en nuestra base de datos: {{ report_data.missing_df2_rows }}</p>
+      <p>Productos nuevos incorporados por {{ proveedor.nombre }} que no tenemos en nuestra base de datos: {{ report_data.missing_df2_rows }}</p>
       {% endif %}
       
-    </div>
+      {% if report_data.avg_increase_percent and report_data.increased_products_count %}
+      <p>Cantidad de productos con aumento: {{ report_data.increased_products_count }}, con un promedio de aumento del {{ report_data.avg_increase_percent }}%</p>
+      {% endif %}
+
+      {% if report_data.avg_discount_percent and report_data.discounted_products_count %}
+      <p>Cantidad de productos con descuento: {{ report_data.discounted_products_count }}, con un promedio de descuento del {{ report_data.avg_discount_percent }}%</p>
+      {% endif %}
+      
+  </div>
+</div>
+
     
     
 
-    <div class="card p-4">
-      <h2>Archivos subidos</h2>
-      <ul class="list-group">
-        {% for file in files %}
-          <li class="list-group-item">
-            <!-- Agrega target="_blank" aquí -->
-            <a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}" target="_blank">
-              <i class="fas fa-file-alt"></i>  <!-- Icono de archivo -->
-              <span class="h5">{{ file }}</span>  <!-- Nombre del archivo -->
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+    <!-- En tu HTML -->
+<div class="card p-4">
+  <h2>Archivos Generados por ProveeSync</h2>
+  <ul class="list-group">
+      {% for file in program_files %}
+      <li class="list-group-item">
+          <a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}" target="_blank">
+              <i class="fas fa-file-alt"></i>
+              <span class="h5">{{ file }}</span>
+          </a>
+      </li>
+      {% endfor %}
+  </ul>
+</div>
+
+<div class="card p-4">
+  <h2>Archivos Cargados por {{ user.company }}</h2>
+  <ul class="list-group">
+      {% for file in user_files %}
+      <li class="list-group-item">
+          <a href="{{ url_for('proveedor_blueprint.serve_file', proveedor_id=proveedor.id, date=date, filename=file) }}" target="_blank">
+              <i class="fas fa-file-alt"></i>
+              <span class="h5">{{ file }}</span>
+          </a>
+      </li>
+      {% endfor %}
+  </ul>
+</div>
+
   </div>
 {% endblock %}

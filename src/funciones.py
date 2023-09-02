@@ -12,10 +12,14 @@ import re
 ############################################################################# CANAL ########################################################################################
 ############################################################################# CANAL ########################################################################################
 
+def clean_illegal_chars(text):
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+    return re.sub(r'[^\x20-\x7E]', '', text)
+
 def clean_canal(filename, new_filename=None,  mpn_value=None):
     # Cargar el archivo de CSV
     df = pd.read_csv(filename, encoding='ISO-8859-1', sep=';')
-
 
     df = df[['Identificador de URL', 'Nombre', 'Precio',
               'SKU','Código de barras','MPN (Número de pieza del fabricante)',
@@ -25,10 +29,13 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     if mpn_value is not None:
         df = df[df['MPN (Número de pieza del fabricante)'] == mpn_value]
 
-  # Limpiar la columna Precio
+    # Limpiar la columna Precio
     df['Precio'] = df['Precio'].str.replace('\..*', '', regex=True).str.replace(',', '')
     df['Precio'] = pd.to_numeric(df['Precio'])
 
+    # Limpiar caracteres ilegales en las columnas de texto
+    for column in df.select_dtypes(include=['object']).columns:
+        df[column] = df[column].apply(clean_illegal_chars)
 
     # Extraer la palabra y el número de la columna SKU
     df[['SKU_palabra', 'SKU_num']] = df['SKU'].str.extract(r"(\D+)(\d+)")
@@ -57,6 +64,7 @@ def clean_canal(filename, new_filename=None,  mpn_value=None):
     df.to_excel(processed_filename, index=False)
     
     print('Archivo limpio guardado como', processed_filename)
+
 
 ############################################################################# ALGABO ########################################################################################
 ############################################################################# ALGABO ########################################################################################
