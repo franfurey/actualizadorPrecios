@@ -32,3 +32,4 @@ mysqlclient
 boto3
 python-Levenshtein
 PyGithub
+reportlab
