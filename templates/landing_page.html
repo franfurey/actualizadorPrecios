@@ -32,57 +32,93 @@
 
 
 {% block video %}
-  <section id="video">
+  <section id="video" class="video-section">
     <h2>¿Cómo Funciona?</h2>
-    <iframe width="560" height="315" src="URL_DEL_VIDEO_DE_YOUTUBE" frameborder="0" allowfullscreen></iframe>
+    <iframe width="900" height="600" src="https://www.youtube.com/embed/UHhDI7Y9nwQ" title="ProveeSync" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     <p>Descubre cómo ProveeSync puede transformar la gestión de precios en tu empresa.</p>
   </section>
 {% endblock %}
 
 {% block pricing %}
-  <section id="pricing">
+  <section id="pricing" class="pricing-section">
     <h2>Planes y Precios</h2>
-    <ul>
-      <li><strong>Plan Freemium:</strong> Empieza gratis y gestiona hasta 5 proveedores.</li>
-      <li><strong>Plan Básico:</strong> Desde $10-$15 USD al mes. Ideal para pequeñas empresas.</li>
-      <li><strong>Plan Intermedio:</strong> $20 USD al mes. Perfecto para empresas de tamaño medio.</li>
-      <li><strong>Plan Avanzado:</strong> $30 USD al mes. Diseñado para grandes empresas.</li>
-    </ul>
+    <div class="plan-box">
+      <div class="plan-item">
+        <h3>Plan Freemium</h3>
+        <p>Empieza gratis y gestiona hasta 5 proveedores.</p>
+      </div>
+      <div class="plan-item">
+        <h3>Plan Básico</h3>
+        <p>Desde $10-$15 USD al mes. Ideal para pequeñas empresas.</p>
+      </div>
+      <div class="plan-item">
+        <h3>Plan Intermedio</h3>
+        <p>$20 USD al mes. Perfecto para empresas de tamaño medio.</p>
+      </div>
+      <div class="plan-item">
+        <h3>Plan Avanzado</h3>
+        <p>$30 USD al mes. Diseñado para grandes empresas.</p>
+      </div>
+    </div>
   </section>
 {% endblock %}
 
 {% block faqs %}
-  <section id="faqs">
+  <section id="faqs" class="faqs-section">
     <h2>Preguntas Frecuentes</h2>
-    <details>
-      <summary>¿Cómo se actualizan los precios?</summary>
-      <p>Los precios se actualizan automáticamente a través de nuestra plataforma en la nube.</p>
+    <details class="faq-item">
+      <summary class="faq-question">¿Cómo se actualizan los precios?</summary>
+      <p class="faq-answer">La actualización de precios es completamente automatizada gracias a nuestra avanzada plataforma en la nube. Además, te ofrecemos la flexibilidad de elegir el formato del archivo que más te convenga—ya sea Excel, CSV, o cualquier otro que necesites—listo para integrarse sin problemas en tu software o e-commerce.</p>
     </details>
-    <!-- Repite para más preguntas -->
+    <details class="faq-item">
+      <summary class="faq-question">¿Se amolda a cualquier software que esté usando?</summary>
+      <p class="faq-answer">Absolutamente, ProveeSync es compatible con una amplia gama de plataformas y softwares de gestión. Si tu sistema tiene funcionalidades de importación y exportación masiva, entonces ProveeSync es la solución ideal para ti.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">¿Cuántos archivos puedo cargar?</summary>
+      <p class="faq-answer">No ponemos un límite estricto en la cantidad de archivos que puedes gestionar. Ya sea que necesites configurar tres o incluso más archivos diferentes, ProveeSync te permite hacerlo con facilidad.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">¿En qué formato deben estar los archivos que subo?</summary>
+      <p class="faq-answer">Soportamos una variedad de formatos de archivo, incluyendo CSV, Excel, PDF, y JSON. Si tienes un formato especial en mente, no dudes en contactarnos para explorar cómo podríamos incorporarlo.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">¿En qué formato deben estar los archivos de mi proveedor?</summary>
+      <p class="faq-answer">Somos flexibles con los formatos de archivo de tu proveedor. Ya sean archivos en Excel, PDF, CSV u otros, podemos adaptarnos y asegurarnos de que la integración sea lo más fluida posible.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">¿Mi información está bien resguardada?</summary>
+      <p class="faq-answer">La seguridad de tus datos es nuestra máxima prioridad. Utilizamos Amazon Web Services, una de las plataformas más seguras a nivel mundial, para almacenar todos tus archivos e información. Así aseguramos múltiples capas de protección para tu tranquilidad.</p>
+    </details>
   </section>
 {% endblock %}
+
+
+
 
 {% block about_us %}
   <section id="about_us">
-    <h2>Acerca de Nosotros</h2>
-    <p>Somos un equipo apasionado por la digitalización de la gestión empresarial. Nos esforzamos por ofrecer soluciones que faciliten el crecimiento de tu negocio.</p>
-  </section>
-{% endblock %}
-
-{% block blog %}
-  <section id="blog">
-    <h2>Últimas Noticias</h2>
-    <article>
-      <h3>Tendencias en Automatización de Precios</h3>
-      <p>Descubre cómo la tecnología está cambiando la forma en que las empresas gestionan sus precios.</p>
-    </article>
-    <!-- Repite para más artículos -->
+    <!-- Contenedor del texto -->
+    <div class="about-text">
+      <h2>Acerca de Nosotros</h2>
+      <p>Hola, soy <a href="https://www.linkedin.com/in/francisco-furey-44519113b/" target="_blank">Fran Furey</a>, el cerebro detrás de ProveeSync. Todo comenzó como un dolor de cabeza personal en mi negocio, <a href="https://soycanal.com.ar/" target="_blank">Soy Canal</a>. Imagina proveer una amplia gama de productos a pañaleras y encontrar que gran parte de tu día se desvanece en la actualización de precios. Ese era yo: atascado, frustrado y viendo cómo mi tiempo y mi inversión se escapaban por entre los dedos.</p>
+      <p>Después de 8 meses de arduo trabajo, pruebas y ajustes, convertí ese dolor en una solución: ProveeSync. No sólo para mí, sino para todas las empresas que se enfrentan al mismo desafío.</p>
+      <p>Si diriges una distribuidora o un e-commerce con múltiples proveedores y te encuentras en la misma encrucijada, perdido entre hojas de cálculo y alertas de precios, ProveeSync es la solución que has estado buscando. Libera a tu equipo de compras, e incluso a ti mismo como fundador, para enfocarse en lo que realmente importa: escalar tu negocio, desarrollar nuevas estrategias y forjar nuevas alianzas.</p>
+      <p>¿Suena como música para tus oídos? ¡Hablemos! Te ofrezco una prueba 100% gratuita con hasta 5 proveedores para que experimentes la revolución de la gestión de precios en tiempo real. Vamos a convertir esas horas perdidas en oportunidades de crecimiento. Estoy deseando compartir ProveeSync contigo y ver cómo transforma tu operación comercial.</p>
+    </div>
+    <!-- Contenedor de la imagen -->
+    <div class="about-image">
+      <img src="static/pictures/franfu.jpeg" alt="Foto del Fundador">
+    </div>
   </section>
 {% endblock %}
 
 {% block cta %}
   <section id="cta">
     <h2>¿Listo para Revolucionar la Gestión de Precios en tu Empresa?</h2>
-    <a href="URL_DE_REGISTRO">Prueba ProveeSync Hoy</a>
+    <div class="cta-button">
+      <a href="{{ url_for('create_account') }}">Prueba ProveeSync Hoy</a>
+    </div>
   </section>
 {% endblock %}
+

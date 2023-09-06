@@ -227,3 +227,150 @@ a:hover, a:focus {
 .cta-button a:hover {
   background-color: #0056b3;
 }
+
+/* Sección del video ajustada a tus especificaciones */
+.video-section {
+  background-color: var(--color-bg); /* Fondo oscuro */
+  color: var(--color-text); /* Texto de color claro */
+  text-align: center; /* Contenido centrado */
+  padding: 50px 0; /* Espacio en la parte superior e inferior de la sección */
+}
+
+.video-section h2 {
+  color: var(--color-primary); /* Título en color primario */
+  font-size: 2.5rem; /* Tamaño de la fuente del título */
+  margin-bottom: 20px; /* Margen inferior */
+}
+
+.video-section p {
+  font-size: 1.2rem; /* Tamaño del párrafo */
+  margin-top: 20px; /* Margen superior */
+}
+
+
+/* Sección de Precios */
+.pricing-section {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  text-align: center;
+  padding: 50px 0;
+}
+
+.pricing-section h2 {
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+.plan-box {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.plan-item {
+  width: 45%;  /* Cambiado a 45% para permitir solo 2 cuadros por fila */
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;  /* Añadido para separación vertical */
+}
+
+.plan-item h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+
+/* Sección de Preguntas Frecuentes */
+.faqs-section {
+  background-color: var(--color-bg);  /* Cambiado para que sea diferente al de precios */
+  color: var(--color-text-light);  /* Texto un poco más claro para contrastar con el fondo */
+  text-align: left;
+  padding: 50px;
+}
+
+.faqs-section h2 {
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+.faq-item {
+  margin: 15px 0;
+  border: none;
+}
+
+.faq-question {
+  background-color: var(--color-secondary);  /* Un poco diferente del fondo para resaltar */
+  color: var(--color-text);
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+.faq-answer {
+  padding: 0 10px;
+  transition: all 0.3s ease;
+}
+
+details[open] .faq-answer {
+  padding: 10px;
+}
+
+
+/* Estilo para la sección Acerca de Nosotros */
+#about_us {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-bg);
+  padding: 50px;
+  color: var(--color-text);
+}
+
+/* Estilo para el contenedor del texto */
+.about-text {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Estilo para el contenedor de la imagen */
+.about-image {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Estilo para el título y el texto */
+.about-text h2, .about-text p {
+  margin: 0;
+  padding: 10px 0;
+}
+
+.about-text h2 {
+  color: var(--color-primary);
+  font-size: 2rem;
+}
+
+.about-image img {
+  max-width: 100%;
+  border-radius: 50%; /* Opcional: para darle un efecto de avatar */
+}
+
+.about-text p {
+  margin-bottom: 20px; /* o el valor que consideres apropiado */
+}
+
+#cta {
+  background: linear-gradient(90deg, rgba(34, 34, 34, 1) 0%, rgba(67, 67, 67, 1) 100%);
+  color: #fff;
+  padding: 3em 0;
+  text-align: center;
+}
+
+#cta h2 {
+  font-size: 2em;
+  margin-bottom: 1em;
+}

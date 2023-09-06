@@ -143,25 +143,36 @@ def agregar_porcentaje_aumento(df):
     df['Costo'] = pd.to_numeric(df['Costo'].str.replace(',', ''), errors='coerce')
     df['Costo_proveedor'] = pd.to_numeric(df['Costo_proveedor'].str.replace(',', ''), errors='coerce')
 
+    # Imprimir valores únicos para depuración
+    print("Valores únicos en 'Costo':", df['Costo'].unique())
+    print("Valores únicos en 'Costo_proveedor':", df['Costo_proveedor'].unique())
+    
     # Reemplazamos los NaN por 0 (o cualquier otro valor que consideres apropiado)
     df['Costo'].fillna(0, inplace=True)
     df['Costo_proveedor'].fillna(0, inplace=True)
 
-    print("Valores únicos en 'Costo':", df['Costo'].unique())
-    print("Valores únicos en 'Costo_proveedor':", df['Costo_proveedor'].unique())
-    
     # Calculamos el porcentaje de aumento
     df['Porcentaje_Aumento'] = ((df['Costo_proveedor'] - df['Costo']) / df['Costo']) * 100
+    
     # Lidiar con infinitos después de la división (si Costo es 0)
     df['Porcentaje_Aumento'].replace([np.inf, -np.inf], np.nan, inplace=True)
+    # Reemplazar NaN con 0 (o cualquier otro valor que consideres apropiado)
+    df['Porcentaje_Aumento'].fillna(0, inplace=True)
+
+    # Redondear los números flotantes al entero más cercano
+    df['Porcentaje_Aumento'] = df['Porcentaje_Aumento'].round()
+    # Imprimir valores únicos en 'Porcentaje_Aumento' para depuración antes de convertir a enteros
+    print("Valores únicos en 'Porcentaje_Aumento' antes de convertir a enteros:", df['Porcentaje_Aumento'].unique())
+    print("Tipo de datos en 'Porcentaje_Aumento' antes de convertir a enteros:", df['Porcentaje_Aumento'].dtype)
+
+    
     # Convertimos a entero
     df['Porcentaje_Aumento'] = df['Porcentaje_Aumento'].astype(int)
     
     # Ordenamos el DataFrame de forma descendente
     df.sort_values('Porcentaje_Aumento', ascending=False, inplace=True)
-
-    
     return df
+
 
 #
 

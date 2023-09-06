@@ -1,7 +1,8 @@
 # Este es el archivo del proveedor: Algabo
 import pandas as pd
+import numpy as np
 
-def filtrar_y_reformatear_algabo(df):
+def process_proveedor_file(df):
     """Filtrar y reformatear un DataFrame de Excel"""
     df = df.drop(index=range(16))
     df = df.rename(columns={
@@ -40,4 +41,11 @@ def filtrar_y_reformatear_algabo(df):
     # Aplicar un 21% de aumento a la columna Costo
     df['Costo'] = df['Costo'] * 1.21
     
+    # Eliminar cualquier NaN o infinito (puedes usar otro valor si lo prefieres)
+    df['Costo'].replace([np.inf, -np.inf], np.nan, inplace=True)
+    df['Costo'].fillna(0, inplace=True)  # Llenar NaN con 0
+
+    # Convertir a enteros
+    df['Costo'] = df['Costo'].astype(int)
+
     return df

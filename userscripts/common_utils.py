@@ -6,9 +6,6 @@ import traceback
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-
-
-
 #
 
 def eliminar_formas_no_imagenes(filename):
@@ -16,17 +13,40 @@ def eliminar_formas_no_imagenes(filename):
     if ext not in ['.xlsx', '.xlsm']:
         print(f"Omitiendo {filename}, ya que no es un archivo Excel soportado.")
         return
-    
-    wb = openpyxl.load_workbook(filename)
-    ws = wb.active
+
     try:
-        for shape in ws._shapes:
-            if not isinstance(shape, openpyxl.drawing.image.Image):
-                ws.remove_shape(shape)
-    except AttributeError:
-        for image in ws._images:
-            ws.remove_image(image)
-    wb.save(filename)
+        wb = openpyxl.load_workbook(filename)
+    except Exception as e:
+        print(f"Error al cargar el archivo {filename}: {e}")
+        return
+
+    ws = wb.active
+    
+    try:
+        if hasattr(ws, '_shapes'):
+            for shape in ws._shapes:
+                if not isinstance(shape, openpyxl.drawing.image.Image):
+                    if hasattr(ws, 'remove_shape'):
+                        ws.remove_shape(shape)
+                    else:
+                        print(f"Método 'remove_shape' no disponible para el archivo {filename}")
+        elif hasattr(ws, '_images'):
+            for image in ws._images:
+                if hasattr(ws, 'remove_image'):
+                    ws.remove_image(image)
+                else:
+                    print(f"Método 'remove_image' no disponible para el archivo {filename}")
+    except AttributeError as e:
+        print(f"Error de atributo en el archivo {filename}: {e}")
+    except Exception as e:
+        print(f"Error desconocido al procesar el archivo {filename}: {e}")
+
+    try:
+        wb.save(filename)
+    except Exception as e:
+        print(f"Error al guardar el archivo {filename}: {e}")
+
+
 
 #
 
