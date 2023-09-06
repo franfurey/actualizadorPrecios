@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}ProveeSync - Automatiza la Gestión de Precios{% endblock %}
+
+{% block content %}
+  <section id="intro">
+    <h1>Automatiza la Gestión de Precios con ProveeSync</h1>
+    <p>Gestiona tus proveedores y actualiza precios de forma sencilla, rápida y eficiente.</p>
+  </section>
+  
+  <section id="features">
+    <h2>Características Únicas</h2>
+    <div class="feature-box">
+      <div class="feature-item">
+        <h3>Eficiencia y Usabilidad</h3>
+        <p>Actualiza precios en minutos, no en horas.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Accesibilidad en la Nube</h3>
+        <p>Accede desde cualquier lugar y en cualquier momento.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Enfoque en el Core Business</h3>
+        <p>Eliminamos funcionalidades redundantes para centrarnos en lo que realmente importa.</p>
+      </div>
+    </div>
+    <div class="cta-button">
+      <a href="{{ url_for('create_account') }}">Crear una cuenta</a>
+    </div>
+  </section>  
+{% endblock %}
+
+
+{% block video %}
+  <section id="video">
+    <h2>¿Cómo Funciona?</h2>
+    <iframe width="560" height="315" src="URL_DEL_VIDEO_DE_YOUTUBE" frameborder="0" allowfullscreen></iframe>
+    <p>Descubre cómo ProveeSync puede transformar la gestión de precios en tu empresa.</p>
+  </section>
+{% endblock %}
+
+{% block pricing %}
+  <section id="pricing">
+    <h2>Planes y Precios</h2>
+    <ul>
+      <li><strong>Plan Freemium:</strong> Empieza gratis y gestiona hasta 5 proveedores.</li>
+      <li><strong>Plan Básico:</strong> Desde $10-$15 USD al mes. Ideal para pequeñas empresas.</li>
+      <li><strong>Plan Intermedio:</strong> $20 USD al mes. Perfecto para empresas de tamaño medio.</li>
+      <li><strong>Plan Avanzado:</strong> $30 USD al mes. Diseñado para grandes empresas.</li>
+    </ul>
+  </section>
+{% endblock %}
+
+{% block faqs %}
+  <section id="faqs">
+    <h2>Preguntas Frecuentes</h2>
+    <details>
+      <summary>¿Cómo se actualizan los precios?</summary>
+      <p>Los precios se actualizan automáticamente a través de nuestra plataforma en la nube.</p>
+    </details>
+    <!-- Repite para más preguntas -->
+  </section>
+{% endblock %}
+
+{% block about_us %}
+  <section id="about_us">
+    <h2>Acerca de Nosotros</h2>
+    <p>Somos un equipo apasionado por la digitalización de la gestión empresarial. Nos esforzamos por ofrecer soluciones que faciliten el crecimiento de tu negocio.</p>
+  </section>
+{% endblock %}
+
+{% block blog %}
+  <section id="blog">
+    <h2>Últimas Noticias</h2>
+    <article>
+      <h3>Tendencias en Automatización de Precios</h3>
+      <p>Descubre cómo la tecnología está cambiando la forma en que las empresas gestionan sus precios.</p>
+    </article>
+    <!-- Repite para más artículos -->
+  </section>
+{% endblock %}
+
+{% block cta %}
+  <section id="cta">
+    <h2>¿Listo para Revolucionar la Gestión de Precios en tu Empresa?</h2>
+    <a href="URL_DE_REGISTRO">Prueba ProveeSync Hoy</a>
+  </section>
+{% endblock %}

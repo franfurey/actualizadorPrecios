@@ -13,24 +13,56 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
   <title>{% block title %}{% endblock %} - ProveeSync</title>
+  {% block meta %}
+  <meta name="description" content="ProveeSync - Automatización de la carga de nuevos precios para distribuidoras en Argentina">
+  <meta name="keywords" content="ProveeSync, precios, inflación, Argentina, distribuidoras">
+  {% endblock %}
 </head>
 <body>
 
 {% include 'nav.html' %}
 
-<!-- Aquí va el contenido principal de tu página -->
+<!-- Contenido principal de la página -->
 <div class="container">
   {% block content %}
+  {% endblock %}
+
+  {% block video %}
+  {% endblock %}
+
+  {% block pricing %}
+  {% endblock %}
+  
+  {% block faqs %}
+  {% endblock %}
+  
+  {% block about_us %}
+  {% endblock %}
+
+  {% block blog %}
+  {% endblock %}
+
+  {% block cta %}
   {% endblock %}
 </div>
 
 {% include 'footer.html' %}
+
+<!-- 
 
 <!-- No olvides incluir jQuery y Bootstrap JS al final de tu archivo HTML -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 {% block scripts %}{% endblock %}
+
+<!-- Botón flotante de WhatsApp -->
+<div id="whatsapp-button">
+  <a href="https://wa.me/5493513273358" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>
+
 
 </body>
 </html>

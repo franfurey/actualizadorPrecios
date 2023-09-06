@@ -142,3 +142,88 @@ a:hover, a:focus {
 .small-input {
   width: 120px;  /* O el tamaño que prefieras */
 }
+
+#whatsapp-button {
+  position: fixed;
+  bottom: 20px;  /* Distancia desde el borde inferior */
+  right: 20px;  /* Distancia desde el borde derecho */
+  z-index: 1000;
+}
+
+#whatsapp-button img {
+  width: 50px;
+  height: 50px;
+}
+#whatsapp-button i {
+  font-size: 70px;  /* Aumenta el tamaño del ícono */
+}
+
+/* Sección de Introducción */
+#intro {
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('URL_DE_IMAGEN_DE_FONDO');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 100px 0;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+}
+
+#intro h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+#intro p {
+  font-size: 1.2rem;
+}
+
+/* Sección de Características */
+#features {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 50px 0;
+  font-family: 'Arial', sans-serif;
+}
+
+#features h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+.feature-box {
+  display: flex;
+  justify-content: space-around;
+}
+
+.feature-item {
+  width: 30%;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-item h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.cta-button {
+  margin-top: 30px;
+}
+
+.cta-button a {
+  background-color: #007bff;
+  color: white;
+  padding: 15px 30px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button a:hover {
+  background-color: #0056b3;
+}

@@ -43,9 +43,10 @@ def load_user(user_id):
 
 
 # Define la ruta para la página de inicio
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET','POST'])
 def home():
-    return login_view()
+    return render_template('landing_page.html')
+
 
 # Define la ruta para la página de inicio de sesión
 @app.route('/login', methods=['GET', 'POST'])
