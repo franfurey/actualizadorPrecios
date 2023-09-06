@@ -17,12 +17,10 @@ def rename_files(current_user_id, proveedor, path):
     for file in files:
         if os.path.isfile(os.path.join(path, file)):  # Añadido para verificar que es un archivo
             new_name = ""
-            
             if file.endswith('.csv'):
                 new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.csv"
             elif file.endswith('.xls') or file.endswith('.xlsx'):
                 new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.xlsx"
-            
             # Verificar si el archivo ya ha sido renombrado
             if new_name and new_name != file:  # Modificado para asegurarse de que new_name no esté vacío
                 os.rename(os.path.join(path, file), os.path.join(path, new_name))
@@ -252,12 +250,12 @@ def generar_csv(path, proveedor):
 
 # 
     
-def process_files(current_user_id, proveedor, path, porcentaje_aumento):
+def process_files(current_user, current_user_id, proveedor, path, porcentaje_aumento):
     rename_files(current_user_id, proveedor, path)
     df_canal, df_proveedor = None, None
     files = os.listdir(path)
     porcentaje_aumento = porcentaje_aumento
-    mpn_value = proveedor.nombre  # Asumiendo que "nombre" es el atributo que guarda el nombre del proveedor
+    mpn_value = proveedor.nombre
     print('Proveedor: ', mpn_value)
     print(f"Lista de archivos después de renombrar: {files}")
 
@@ -294,5 +292,6 @@ def process_files(current_user_id, proveedor, path, porcentaje_aumento):
         df_final.to_excel(os.path.join(path, "final.xlsx"), index=False)
         df_hoja1, df_hoja2, df_hoja3 = seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento)
         adjust_columns_and_center_text(path)
-        generate_report_and_pdf(df_final, path, proveedor.nombre, df_hoja1, df_hoja2, df_hoja3)
+        generate_report_and_pdf(df_final, path, proveedor.nombre, df_hoja1, df_hoja2, df_hoja3, porcentaje_aumento=porcentaje_aumento, user=current_user)
+
         generar_csv(path, proveedor)

@@ -208,7 +208,7 @@ def rename(proveedor_id, date):
         module = import_module(module_name)
         print(f"Módulo importado: {module}")
 
-        module.process_files(current_user.id, proveedor, local_directory, porcentaje_aumento)
+        module.process_files(current_user, current_user.id, proveedor, local_directory, porcentaje_aumento)
 
         print(f"Subiendo archivos procesados desde {local_directory} a {object_key_prefix}")
         upload_files_to_folder(bucket_name="proveesync", folder_path=object_key_prefix, local_path=local_directory)

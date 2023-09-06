@@ -12,12 +12,8 @@
   <div class="card p-4">
       <h2>Resumen del informe</h2>
 
-      {% if report_data.matched_products %}
-      <p>Total de productos en nuestra base de datos: {{ report_data.matched_products }}</p>
-      {% endif %}
-
-      {% if report_data.total_products_supplier_db %}
-      <p>Total de productos en la base de datos de {{ proveedor.nombre }}: {{ report_data.total_products_supplier_db }}</p>
+      {% if report_data.porcentaje_aumento_cliente %}
+      <p>Margen marcado por {{ user.company }}: {{ report_data.porcentaje_aumento_cliente }}%</p>
       {% endif %}
 
       {% if report_data.matched_products %}
@@ -25,11 +21,11 @@
       {% endif %}
 
       {% if report_data.missing_df1_rows %}
-      <p>Total de productos que están en nuestra base de datos pero no en la de {{ proveedor.nombre }}: {{ report_data.missing_df1_rows }}</p>
+      <p>Total de productos que están en la base de datos de {{ user.company }} pero no en la de {{ proveedor.nombre }}: {{ report_data.missing_df1_rows }}</p>
       {% endif %}
 
       {% if report_data.missing_df2_rows %}
-      <p>Productos nuevos incorporados por {{ proveedor.nombre }} que no tenemos en nuestra base de datos: {{ report_data.missing_df2_rows }}</p>
+      <p>Productos nuevos incorporados por {{ proveedor.nombre }} pero no incorporados en {{ user.company }}: {{ report_data.missing_df2_rows }}</p>
       {% endif %}
       
       {% if report_data.avg_increase_percent and report_data.increased_products_count %}
@@ -43,10 +39,6 @@
   </div>
 </div>
 
-    
-    
-
-    <!-- En tu HTML -->
 <div class="card p-4">
   <h2>Archivos Generados por ProveeSync</h2>
   <ul class="list-group">

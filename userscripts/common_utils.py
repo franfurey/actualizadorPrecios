@@ -5,6 +5,10 @@ import openpyxl
 import traceback
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+
+
+
+
 #
 
 def eliminar_formas_no_imagenes(filename):
@@ -75,12 +79,11 @@ def adjust_columns_and_center_text(path):
 
 #
 
-def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2, df_hoja3, filename="report.pdf"):
+def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2, df_hoja3, porcentaje_aumento, user):
     total_rows = len(df_final)
     matched_products = len(df_hoja1)
     missing_df1_rows = len(df_hoja2)
     missing_df2_rows = len(df_hoja3)
-
     # Calculo de productos con aumento y su porcentaje promedio
     increased_products = df_hoja1[df_hoja1['Porcentaje_Aumento'] > 0]
     if increased_products.empty:
@@ -104,7 +107,8 @@ def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2
         "avg_increase_percent": avg_increase_percent,
         "increased_products_count": len(increased_products),
         "avg_discount_percent": avg_discount_percent,
-        "discounted_products_count": len(discounted_products)
+        "discounted_products_count": len(discounted_products),
+        "porcentaje_aumento_cliente": porcentaje_aumento
     }
 
     print("Datos del informe antes de escribir en el archivo JSON:", report_data)
@@ -114,26 +118,19 @@ def generate_report_and_pdf(df_final, path, proveedor_nombre, df_hoja1, df_hoja2
     pdf_path = os.path.join(path, f"{proveedor_nombre}-Reporte-PS.pdf")
     c = canvas.Canvas(pdf_path, pagesize=letter)
 
-    # Título
     c.setFont("Helvetica-Bold", 18)
-    c.drawString(30, 800, "Informe de Productos")
-
+    c.drawString(30, 730, f"Informe de Actualizacion de precios de {proveedor_nombre} para {user.company}")  # Título bajado a 730
     c.setFont("Helvetica", 12)
-
-    # Nuevas líneas para los totales, ajustadas para comenzar más a la izquierda y dejar espacio en la parte superior
-    # c.drawString(30, 770, f"Total de productos en nuestra base de datos: {total_products_our_db}")
-    # c.drawString(30, 750, f"Total de productos en el Excel del {proveedor_nombre}: {total_products_supplier_db}")
-    c.drawString(30, 730, f"Total de productos encontrados en ambas listas: {matched_products}")
-    c.drawString(30, 710, f"Total de productos que están en nuestra base de datos pero no en la de {proveedor_nombre}: {missing_df1_rows}")
-    c.drawString(30, 690, f"Productos nuevos incorporados por {proveedor_nombre} que no tenemos en nuestra base de datos: {missing_df2_rows}")
+    c.drawString(30, 700, f"Margen marcado por {user.company}: {porcentaje_aumento}%")  # Bajado a 700
+    c.drawString(30, 680, f"Total de productos encontrados en ambas listas: {matched_products}")  # Bajado a 680
+    c.drawString(30, 660, f"Total de productos que están en la base de datos de {user.company} pero no en la de {proveedor_nombre}: {missing_df1_rows}")  # Bajado a 660
+    c.drawString(30, 640, f"Productos nuevos incorporados por {proveedor_nombre} pero no incorporados en {user.company}: {missing_df2_rows}")  # Bajado a 640
     if avg_increase_percent is not None and increased_products is not None:
-        c.drawString(30, 670, f"Cantidad de productos con aumento: {len(increased_products)}, con un promedio de aumento del {int(avg_increase_percent)}%")
-
+        c.drawString(30, 620, f"Cantidad de productos con aumento: {len(increased_products)}, con un promedio de aumento del {int(avg_increase_percent)}%")  # Bajado a 620
     if avg_discount_percent is not None and discounted_products is not None:
-        c.drawString(30, 650, f"Cantidad de productos con descuento: {len(discounted_products)}, con un promedio de descuento del {int(avg_discount_percent)}%")
-
-    
+        c.drawString(30, 600, f"Cantidad de productos con descuento: {len(discounted_products)}, con un promedio de descuento del {int(avg_discount_percent)}%")  # Bajado a 600
     c.save()
     print(f"Archivo de informe guardado como {pdf_path}")
+
 
     return report_data
