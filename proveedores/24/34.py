@@ -4,8 +4,10 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-def process_proveedor_file(urls):
+def process_proveedor_file():
     session = requests.Session()
+    
+    urls = ['https://drimel.com.ar/?product_cat=bebes', 'https://drimel.com.ar/?product_cat=cuidado-del-bebe']
 
     marcas = ['Algabo', 'Duffy', 'Huggies','Babysec','Caricia','Estrella','Pampers',
               'Candy','Doncella','Deyse','Johnsons','Kimbies','Upa']
@@ -16,6 +18,7 @@ def process_proveedor_file(urls):
         page = 1
         while True:
             url = extract_url + '&paged={}'.format(page)
+            print(f"Intentando acceder a {url}")  # línea de debug
 
             response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html.parser')
