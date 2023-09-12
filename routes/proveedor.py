@@ -187,6 +187,8 @@ def delete(proveedor_id, date):
     except Exception as e:  # Cambié esto a Exception, ya que no estamos interactuando con SQLAlchemy aquí
         print(e)  # Imprime el error
 
+#
+
 @proveedor_blueprint.route('/<int:proveedor_id>/<date>/rename', methods=['POST'])
 @login_required
 def rename(proveedor_id, date):

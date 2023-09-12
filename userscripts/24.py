@@ -89,13 +89,10 @@ def filtrar_y_reformatear_canal(df, mpn_value=None):
     df = df.rename(columns={'SKU_modificado': 'SKU'})
     return df
 
-########################################################################################################################################################################
+#
 
 def combine_dataframes(df1, df2):
-    df1 = df1.copy()  # Copiar df1 para evitar cambios en el original
-    df2 = df2.copy()  # Copiar df2 para evitar cambios en el original
     rows_list = []
-    
     # Ajustar nombres de columnas en df2
     df2.columns = [col + '_proveedor' if col in df1.columns else col for col in df2.columns]
     
@@ -193,6 +190,7 @@ def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
     columnas_hoja1 = [col for col in columnas_hoja1 if col in df_final.columns]
     columnas_hoja2 = [col for col in columnas_hoja2 if col in df_final.columns]
     columnas_hoja3 = [col for col in columnas_hoja3 if col in df_final.columns]
+    
     
     df_hoja1 = eliminar_filas_vacias(df_final[df_final['similarity'] > 50][columnas_hoja1])
     df_hoja1 = agregar_porcentaje_aumento(df_hoja1)
