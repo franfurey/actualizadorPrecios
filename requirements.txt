@@ -33,3 +33,4 @@ boto3
 python-Levenshtein
 PyGithub
 reportlab
+gevent>=1.4
