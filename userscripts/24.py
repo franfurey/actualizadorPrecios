@@ -62,7 +62,7 @@ def leer_archivo(filename, skiprows=0):
         traceback.print_exc()
         return None, None
 
-########################################################################################################################################################################
+#
 
 def filtrar_y_reformatear_canal(df, mpn_value=None):
     """Filtrar y reformatear un DataFrame"""

@@ -106,7 +106,7 @@ def create_user(username, password, company):
     repo = g.get_repo("franfurey/actualizadorPrecios")
 
     try:
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='scrypt')
         new_user = User(email=username, password=hashed_password, company=company)
         session.add(new_user)
         session.commit()
@@ -135,7 +135,7 @@ def create_user(username, password, company):
 def create_admin_user(email, password):
     session = Session()
     try:
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='scrypt')
         admin_user = User(email=email, password=hashed_password, is_admin=True)
         session.add(admin_user)
         session.commit()

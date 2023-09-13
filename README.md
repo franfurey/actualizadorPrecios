@@ -1,57 +1,71 @@
-This Python script includes three functions to clean and manipulate data from different sources.
+# ProveeSync
 
-clean_canal
-This function takes a CSV file as input and cleans it by selecting specific columns, filtering by a given value in the MPN column, cleaning and formatting the Price and SKU columns, and concatenating the SKU_num and SKU_letra columns into a new SKU_numero column. Finally, it saves the cleaned data in an Excel file in the "procesadosCanal" folder.
+**A Dynamic Pricing Automation Tool for B2B Businesses**
 
-Parameters
-filename: The name of the CSV file to be cleaned.
-new_filename: The name of the new Excel file to be saved. If not provided, the name will be the same as the original CSV file but with an Excel extension.
-mpn_value: The value to filter the MPN column by.
-concat
-This function takes two Excel files as input and concatenates them based on the similarity of the SKU column. The resulting file includes information from both input files, as well as a similarity score calculated using the fuzzywuzzy library. The function saves the concatenated data in a new Excel file.
+---
 
-Parameters
-archivo1: The name of the first Excel file to be concatenated.
-archivo2: The name of the second Excel file to be concatenated.
-archivo_resultado: The name of the new Excel file to be saved.
-clean_algabo
-This function takes an Excel file as input and cleans it by selecting specific columns, removing rows without a code associated, cleaning and formatting the Código de barras column, and concatenating the num and SKU_letra columns into a new SKU column. The function also applies a 15% discount and a 21% increase to the Costo column. Finally, it saves the cleaned data in an Excel file in the "procesados" folder and removes any non-image shapes from the file.
+## Overview
 
-Parameters
-filename: The name of the Excel file to be cleaned.
-new_filename: The name of the new Excel file to be saved. If not provided, the name will be the same as the original file.
+In the ever-evolving economic landscape of Latin America, particularly Argentina, businesses face consistent challenges due to frequent price fluctuations caused by inflation and other market dynamics. ProveeSync emerges as an efficient, cloud-based solution designed to help B2B businesses automate the process of updating their prices in response to these market shifts.
 
+---
 
-Función clean_furey
-Esta función recibe como entrada el nombre de un archivo Excel y opcionalmente un nuevo nombre para el archivo procesado. La función carga el archivo Excel usando la librería Pandas y realiza una serie de operaciones de limpieza y transformación de los datos:
+## Features
 
-Elimina las primeras 6 filas del archivo.
-Renombra las columnas SKU, Código de barras, Nombre y Costo.
-Elimina las filas que no tienen un código de barras asociado.
-Limpia el campo Código de barras eliminando los caracteres ".", "+", "E" y "-" y luego rellena el número con ceros a la izquierda hasta completar 13 caracteres.
-Divide la columna SKU en dos columnas: una con el número y otra con las letras.
-Convierte la columna SKU número en tipo numérico y la ordena de forma ascendente.
-Concatena la columna SKU número y SKU letra en la columna SKU número.
-Convierte la columna Costo en tipo string y elimina la coma y cualquier dígito después del punto.
-Guarda el archivo procesado en la carpeta "procesados".
-Elimina las formas que no son imágenes del archivo procesado.
-Función clean_teddy
-Esta función recibe como entrada el nombre de un archivo Excel y opcionalmente un nuevo nombre para el archivo procesado. La función carga el archivo Excel usando la librería Pandas y realiza una serie de operaciones de limpieza y transformación de los datos:
+- **Dynamic Pricing Automation:** Automate your price updating process to stay aligned with market dynamics.
+  
+- **Cloud-Based Solution:** Access ProveeSync anytime, anywhere. No local installations required.
 
-Elimina las primeras 19 filas del archivo.
-Renombra las columnas SKU, Código de barras, Nombre y Costo.
-Elimina las filas que no tienen un código de barras asociado.
-Limpia el campo Código de barras eliminando los caracteres ".", "+", "E" y "-" y luego rellena el número con ceros a la izquierda hasta completar 13 caracteres.
-Convierte la columna SKU en tipo numérico y la ordena de forma ascendente.
-Elimina las comas de la columna Costo.
-Limpia los valores de la columna Costo para dejar únicamente el número entero.
-Guarda el archivo procesado en la carpeta "procesados".
-Elimina las formas que no son imágenes del archivo procesado.
-Función scrape_drimel
-Esta función recibe como entrada una lista de URLs de la tienda en línea Drimel. La función realiza una petición HTTP a cada URL, extrae la información de los productos de la página y la guarda en un DataFrame de Pandas. Luego realiza una serie de operaciones de limpieza y transformación de los datos:
+- **Modular Pricing System:** Choose a pricing tier that aligns with your business needs, allowing you to scale seamlessly as you grow.
 
-Filtra los productos que no contienen ninguna de las marcas especificadas en la lista marcas.
-Limpia el campo price eliminando el signo "$", las comillas, el punto y cualquier dígito después de la coma.
-Convierte el campo product_id en tipo entero y lo usa como SKU.
-Limpia el campo Costo para dejar únicamente el número entero.
-Renombra las columnas name, price, product_id, product_sku, url_id y marca a Nombre, Costo, SKU, Código de barras, `Identificador de
+- **User-Friendly Interface:** Onboard and integrate ProveeSync into your existing workflows with ease.
+
+---
+
+## Technical Specifications
+
+- **Database Management:** Built with PlanetScale - a robust and scalable database solution.
+
+- **Data Handling:** Integrated with AWS S3 for efficient data management.
+
+- **Email Automation:** Seamlessly integrated with MailGun for all email-related functionalities.
+
+- **Repository Storage:** Source code managed and stored on GitHub.
+
+---
+
+## Pricing Tiers
+
+- **Freemium:** Manage up to 5 providers for free.
+  
+- **Basic Plan (5-15 providers):** $10-$15 USD per month.
+
+- **Intermediate Plan (16-30 providers):** $20 USD per month.
+
+- **Advanced Plan (31-50 providers):** $30 USD per month.
+
+---
+
+## Getting Started
+
+1. **Sign Up:** Create your ProveeSync account.
+  
+2. **Choose a Plan:** Select a pricing tier that suits your business needs.
+
+3. **Integrate with Your System:** Seamlessly integrate ProveeSync into your existing workflow.
+
+4. **Start Automating:** Begin automating your pricing updates and enjoy a more streamlined business process.
+
+---
+
+## Contributing
+
+We appreciate contributions from the community! If you'd like to contribute, please follow the standard GitHub pull request process.
+
+---
+
+## Feedback and Support
+
+For feedback, support, or any queries related to ProveeSync, reach out to us at [franciscofurey@gmail.com](mailto:franciscofurey@gmail.com).
+
+---
