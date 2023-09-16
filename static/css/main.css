@@ -374,3 +374,91 @@ details[open] .faq-answer {
   font-size: 2em;
   margin-bottom: 1em;
 }
+
+/* CSS Responsivo */
+
+/* Dispositivos pequeños (teléfonos, menos de 768px) */
+@media only screen and (max-width: 767px) {
+
+  .container {
+      padding: 0 10px;
+  }
+
+  .section {
+      padding: 40px 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      font-size: 90%;
+  }
+
+  .feature-box, .plan-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .feature-item {
+      margin: 15px 0;
+      width: 90%; /* O el porcentaje que desees */
+  }
+
+  iframe {
+      width: 100%;
+      height: auto;
+  }
+
+  /* Acerca de Nosotros - sección */
+  #about_us .about-text, #about_us .about-image {
+      width: 100%;
+      display: block; /* Asegurarse de que tomen todo el ancho */
+      float: none; /* En caso de que hayas usado float en otro lugar */
+  }
+
+  #about_us .about-text {
+      order: 1; /* Esto hará que el texto siempre se muestre primero */
+  }
+
+  #about_us .about-image {
+      order: 2; /* Esto hará que la imagen siempre se muestre después del texto */
+      text-align: center; /* Centrar la imagen si es más pequeña que el contenedor */
+  }
+
+  #about_us .about-image img {
+      width: 100%;
+      max-width: 400px; /* Puedes ajustar este valor según lo que te parezca mejor */
+      height: auto;
+      margin: 20px auto; /* Centra la imagen horizontalmente y da espacio arriba y abajo */
+      display: block; /* Para que la imagen se muestre en su propia línea */
+  }
+  #about_us {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Dispositivos medianos (tablets, 768px y arriba) */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+  .feature-box, .plan-box {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      flex-wrap: wrap;
+  }
+
+  .feature-item, .plan-item {
+      margin: 15px;
+      flex-basis: 45%;  /* Esto indica que cada item ocupará aproximadamente la mitad del espacio disponible */
+  }
+
+  iframe {
+      width: 100%;
+      height: auto;
+  }
+
+  /* Acerca de Nosotros - sección */
+  #about_us .about-text, #about_us .about-image {
+      width: 50%;
+  }
+}
