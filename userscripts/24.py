@@ -191,7 +191,9 @@ def seleccionar_columnas(df_final, proveedor, path, porcentaje_aumento):
     columnas_hoja2 = [col for col in columnas_hoja2 if col in df_final.columns]
     columnas_hoja3 = [col for col in columnas_hoja3 if col in df_final.columns]
     
-    
+    print('df_final')
+    print(df_final.columns)
+    print(df_final)
     df_hoja1 = eliminar_filas_vacias(df_final[df_final['similarity'] > 50][columnas_hoja1])
     df_hoja1 = agregar_porcentaje_aumento(df_hoja1)
     # Actualizar los precios con el porcentaje de aumento en df_hoja1

@@ -7,8 +7,13 @@ from bs4 import BeautifulSoup
 def process_proveedor_file():
     session = requests.Session()
     
-    urls = ['https://drimel.com.ar/?product_cat=bebes', 'https://drimel.com.ar/?product_cat=cuidado-del-bebe']
+    # Configurar el User-Agent
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    # Visitar la página principal para recoger cookies
+    session.get('https://drimel.com.ar', headers=headers)
 
+    urls = ['https://drimel.com.ar/categoria/panales/bebes', 'https://drimel.com.ar/categoria/panales/cuidado-del-bebe']
     marcas = ['Algabo', 'Duffy', 'Huggies','Babysec','Caricia','Estrella','Pampers',
               'Candy','Doncella','Deyse','Johnsons','Kimbies','Upa']
 
@@ -17,19 +22,21 @@ def process_proveedor_file():
     for extract_url in urls: 
         page = 1
         while True:
-            url = extract_url + '&paged={}'.format(page)
-            print(f"Intentando acceder a {url}")  # línea de debug
+            url = f"{extract_url}/page/{page}"  # Nueva forma de generar la URL
+            print(f"Intentando acceder a {url}")
 
-            response = requests.get(url)
+            # Usar la session y los headers para la solicitud
+            response = session.get(url, headers=headers)
             soup = BeautifulSoup(response.content, 'html.parser')
-
+            
             products = soup.find_all('div', class_='box-text box-text-products')
+            
             if not products:
                 break
 
             for product in products:
-                name = product.find('a', class_='woocommerce-LoopProduct-link').text.strip()
-                price = product.find('span', class_='woocommerce-Price-amount').text.strip()[1:]
+                name = product.find('a', class_='woocommerce-LoopProduct-link woocommerce-loop-product__link').text.strip()
+                price = product.find('span', class_='woocommerce-Price-amount amount').text.strip()[1:]
                 price = price.replace('"', '').replace('.', '').split(',')[0]
                 
                 marca = ''
@@ -59,5 +66,8 @@ def process_proveedor_file():
 
     df['SKU'] = df['SKU'].astype(int)
     df = df.sort_values('SKU', ascending=True)
+    print('DRIMEL DF')
+    print(df)
+    print(df.columns)
 
     return df
