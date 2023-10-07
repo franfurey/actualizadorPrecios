@@ -11,7 +11,8 @@ def process_proveedor_file():
     headers = {'User-Agent': 'Mozilla/5.0'}
     
     # Visitar la página principal para recoger cookies
-    session.get('https://drimel.com.ar', headers=headers)
+    response = session.get('https://drimel.com.ar', headers=headers)
+    print(f"Conexión a página principal: {response.status_code}")
 
     urls = ['https://drimel.com.ar/categoria/panales/bebes', 'https://drimel.com.ar/categoria/panales/cuidado-del-bebe']
     marcas = ['Algabo', 'Duffy', 'Huggies','Babysec','Caricia','Estrella','Pampers',
@@ -27,6 +28,11 @@ def process_proveedor_file():
 
             # Usar la session y los headers para la solicitud
             response = session.get(url, headers=headers)
+            print(f"Estado de la solicitud: {response.status_code}")
+            if response.status_code != 200:
+                print("No se pudo conectar al URL.")
+                break
+            
             soup = BeautifulSoup(response.content, 'html.parser')
             
             products = soup.find_all('div', class_='box-text box-text-products')
