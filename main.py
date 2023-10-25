@@ -53,6 +53,21 @@ def home():
 def login():
     return login_view()
 
+@app.route('/services')
+def services():
+    return render_template('services.html')
+
+@app.route('/blog')
+def blog():
+    # Aquí eventualmente querrás cargar tus entradas de blog desde una base de datos
+    # Pero por ahora, usaremos una lista de diccionarios para simularlo.
+    blog_entries = [
+        {'title': 'Mi primera entrada', 'content': 'Este es el contenido de mi primera entrada.'},
+        {'title': 'Mi segunda entrada', 'content': 'Este es el contenido de mi segunda entrada.'},
+    ]
+    return render_template('blog.html', entries=blog_entries)
+
+
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
