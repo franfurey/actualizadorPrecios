@@ -3,7 +3,7 @@ import os
 from celery import Celery
 from dotenv import load_dotenv
 
-load_dotenv('../db.env')
+load_dotenv('../.env')
 BROKER_URL = os.getenv('BROKER_URL')
 
 app = Celery('myapp')

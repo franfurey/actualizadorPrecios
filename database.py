@@ -15,7 +15,7 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date
 
-load_dotenv('db.env')
+load_dotenv('.env')
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
 

@@ -5,7 +5,7 @@ from io import BytesIO
 from datetime import datetime
 from dotenv import load_dotenv
 
-load_dotenv('db.env')
+load_dotenv('.env')
 # Configurar la sesión con las credenciales de AWS
 session = boto3.Session(
     aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],

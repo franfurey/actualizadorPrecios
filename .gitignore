@@ -6,7 +6,7 @@
 __pycache__
 venv
 openai.env
-db.env
+.env
 .env
 venv/
 
