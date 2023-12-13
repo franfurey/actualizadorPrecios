@@ -9,6 +9,9 @@ openai.env
 .env
 .env
 venv/
+*.crt
+*.key
+
 
 
 # Byte-compiled / optimized / DLL files

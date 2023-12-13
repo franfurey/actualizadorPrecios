@@ -93,7 +93,6 @@ def proveedor_files(proveedor_id, date):
     finally:
         directory = f'clients/{current_user.id}/{proveedor_id}/{date}'
         excluded_files = ['combined.xlsx', 'final.xlsx']
-        excluded_extensions = ['.json']
         allowed_extensions = ['.xlsx', '.xls', '.csv','.pdf']
         user_uploaded_files = []
         program_generated_files = []

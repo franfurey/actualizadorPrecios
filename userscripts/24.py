@@ -10,21 +10,30 @@ from .common_utils import adjust_columns_and_center_text, eliminar_formas_no_ima
 
 #
 
-def rename_files(current_user_id, proveedor, path):
+def rename_files(current_user_id: str, proveedor: object, path: str) -> None:
+    """
+    Renombra los archivos en un directorio dado según ciertos criterios.
+
+    Args:
+    current_user_id (str): El ID del usuario actual.
+    proveedor (object): Objeto que representa al proveedor, debe tener un atributo 'nombre'.
+    path (str): Ruta del directorio donde se encuentran los archivos a renombrar.
+    """
     files = os.listdir(path)
-    print("Archivos en el directorio:", files)
-    
+
     for file in files:
-        if os.path.isfile(os.path.join(path, file)):  # Añadido para verificar que es un archivo
-            new_name = ""
-            if file.endswith('.csv'):
-                new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.csv"
-            elif file.endswith('.xls') or file.endswith('.xlsx'):
-                new_name = f"{current_user_id}-{proveedor.nombre}-{'canal' if 'canal' in file else 'proveedor'}.xlsx"
-            # Verificar si el archivo ya ha sido renombrado
-            if new_name and new_name != file:  # Modificado para asegurarse de que new_name no esté vacío
+        if not os.path.isfile(os.path.join(path, file)):
+            continue
+
+        file_type = 'canal' if 'canal' in file else 'proveedor'
+        extension = '.csv' if file.endswith('.csv') else '.xlsx' if file.endswith(('.xls', '.xlsx')) else None
+
+        if extension:
+            new_name = f"{current_user_id}-{proveedor.nombre}-{file_type}{extension}"
+            if new_name != file:
                 os.rename(os.path.join(path, file), os.path.join(path, new_name))
                 print(f"Archivo renombrado a: {new_name}")
+
 
 #
 
