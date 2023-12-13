@@ -6,8 +6,8 @@ services:
       - "80:80"
       - "443:443" # Mapea el puerto 443 para HTTPS
     volumes:
-      - /Users/franciscofurey/Downloads/proveesync.com.ar.crt:/etc/ssl/certs/proveesync.com.ar.crt
-      - /Users/franciscofurey/Downloads/proveesync.com.ar.key:/etc/ssl/private/proveesync.com.ar.key
+      - /home/ec2-user/proveesync.com.ar.crt:/etc/ssl/certs/proveesync.com.ar.crt
+      - /home/ec2-user/proveesync.com.ar.key:/etc/ssl/private/proveesync.com.ar.key
       - ./nginx.conf:/etc/nginx/nginx.conf # Mapea tu archivo nginx.conf personalizado
     env_file:
       - .env
